@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { AirQualityData } from '../types';
-import { Leaf, Sprout, Wind, ShieldCheck, AlertCircle, Flower } from 'lucide-react';
+import { PollutantIcon } from '../icons';
 
 interface PollutionRadarProps {
   data?: AirQualityData;
@@ -41,7 +41,7 @@ const PollenItem = ({ label, count, icon }: { label: string, count: number, icon
 
   return (
     <div className={`flex flex-col items-center p-3 rounded-2xl border ${color} backdrop-blur-sm transition-transform hover:scale-105`}>
-      <div className="mb-2 opacity-90">{icon}</div>
+      <div className="mb-2 opacity-90 w-5 h-5">{icon}</div>
       <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-0.5">{label}</span>
       <span className="text-sm font-bold">{status}</span>
     </div>
@@ -64,7 +64,9 @@ export const PollutionRadar: React.FC<PollutionRadarProps> = ({ data, aqi }) => 
     <div className="bg-black/20 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 px-2 gap-4">
          <div className="flex items-center opacity-70">
-            <ShieldCheck className="w-4 h-4 mr-2" />
+            <div className="w-4 h-4 mr-2">
+               <PollutantIcon type="shield" />
+            </div>
             <h3 className="text-sm font-medium uppercase tracking-wider">Air Quality</h3>
          </div>
          {aqi && (
@@ -105,9 +107,9 @@ export const PollutionRadar: React.FC<PollutionRadarProps> = ({ data, aqi }) => 
            </div>
            
            <div className="grid grid-cols-3 gap-3">
-              <PollenItem label="Grass" count={data.pollen.grass} icon={<Sprout className="w-5 h-5" />} />
-              <PollenItem label="Tree" count={data.pollen.tree} icon={<Leaf className="w-5 h-5" />} />
-              <PollenItem label="Weed" count={data.pollen.weed} icon={<Flower className="w-5 h-5" />} />
+              <PollenItem label="Grass" count={data.pollen.grass} icon={<PollutantIcon type="sprout" />} />
+              <PollenItem label="Tree" count={data.pollen.tree} icon={<PollutantIcon type="leaf" />} />
+              <PollenItem label="Weed" count={data.pollen.weed} icon={<PollutantIcon type="flower" />} />
            </div>
         </div>
       </div>

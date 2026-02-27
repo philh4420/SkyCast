@@ -1,6 +1,7 @@
 import React from 'react';
 import { WeatherData } from '../types';
-import { Wind, Sun, Eye, Gauge, Umbrella, Navigation, Sunrise, Thermometer, Moon, Cloud, Droplets, Layers, Activity } from 'lucide-react';
+import { Navigation } from 'lucide-react';
+import { UtilityIcon } from '../icons';
 
 interface WeatherDetailsGridProps {
   data: WeatherData;
@@ -21,7 +22,9 @@ const BentoBox = ({ title, icon, children, className = "" }: any) => (
     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
     
     <div className="flex items-center gap-2 opacity-60 mb-3 group-hover:opacity-90 transition-opacity duration-300 relative z-10">
-      {React.cloneElement(icon, { className: "w-4 h-4 drop-shadow-sm" })}
+      <div className="w-4 h-4 drop-shadow-sm">
+        {icon}
+      </div>
       <span className="text-xs font-semibold uppercase tracking-wider drop-shadow-sm">{title}</span>
     </div>
     
@@ -60,7 +63,7 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
         
         {/* UV Index */}
-        <BentoBox title="UV Index" icon={<Sun className="w-4 h-4" />}>
+        <BentoBox title="UV Index" icon={<UtilityIcon type="uv" />}>
           <div>
             <div className="text-3xl font-medium">{current.uvIndex ?? 0}</div>
             <div className="text-sm font-medium">{getUVDesc(current.uvIndex ?? 0)}</div>
@@ -73,13 +76,13 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
         </BentoBox>
 
         {/* Sunrise */}
-        <BentoBox title="Sunrise" icon={<Sunrise className="w-4 h-4" />}>
+        <BentoBox title="Sunrise" icon={<UtilityIcon type="sunrise" />}>
           <div className="text-3xl font-medium">{current.sunrise}</div>
           <div className="text-xs opacity-70">Sunset: {current.sunset}</div>
         </BentoBox>
 
         {/* Wind */}
-        <BentoBox title="Wind" icon={<Wind className="w-4 h-4" />}>
+        <BentoBox title="Wind" icon={<UtilityIcon type="wind" />}>
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-medium">{windSpeedVal}</div>
@@ -93,7 +96,7 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
         </BentoBox>
 
         {/* Rainfall */}
-        <BentoBox title="Rainfall" icon={<Umbrella className="w-4 h-4" />}>
+        <BentoBox title="Rainfall" icon={<UtilityIcon type="rain" />}>
           <div className="text-3xl font-medium">{rainChance}%</div>
           <div className="text-xs opacity-70">
             {forecast[0]?.totalPrecip !== undefined ? `${forecast[0].totalPrecip} mm expected` : 'Chance of rain'}
@@ -101,7 +104,7 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
         </BentoBox>
 
         {/* Feels Like */}
-        <BentoBox title="Feels Like" icon={<Thermometer className="w-4 h-4" />}>
+        <BentoBox title="Feels Like" icon={<UtilityIcon type="feels-like" />}>
           <div className="text-3xl font-medium">{feelsLike}°</div>
           <div className="text-xs opacity-70">
             {feelsLike > temp ? 'Humid' : feelsLike < temp ? 'Wind Chill' : 'Actual'}
@@ -109,19 +112,19 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
         </BentoBox>
 
         {/* Humidity */}
-        <BentoBox title="Humidity" icon={<Droplets className="w-4 h-4" />}>
+        <BentoBox title="Humidity" icon={<UtilityIcon type="humidity" />}>
           <div className="text-3xl font-medium">{current.humidity}%</div>
           <div className="text-xs opacity-70">Dew Point: {dewPointVal}°</div>
         </BentoBox>
 
         {/* Visibility */}
-        <BentoBox title="Visibility" icon={<Eye className="w-4 h-4" />}>
+        <BentoBox title="Visibility" icon={<UtilityIcon type="visibility" />}>
           <div className="text-3xl font-medium">{visVal}</div>
           <div className="text-xs opacity-70">{visUnit}</div>
         </BentoBox>
 
         {/* Pressure */}
-        <BentoBox title="Pressure" icon={<Gauge className="w-4 h-4" />}>
+        <BentoBox title="Pressure" icon={<UtilityIcon type="pressure" />}>
           <div className="text-3xl font-medium">{current.pressure}</div>
           <div className="text-xs opacity-70">hPa</div>
         </BentoBox>

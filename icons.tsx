@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Sun, Moon, CloudSun, Wind } from 'lucide-react';
+import { Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Sun, Moon, CloudSun, Wind, Eye, Gauge, Umbrella, Navigation, Sunrise, Thermometer, Droplets, Layers, Activity, ShieldCheck, Leaf, Sprout, Flower } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface WeatherIconProps {
@@ -118,6 +118,178 @@ export const WeatherIcon: React.FC<WeatherIconProps> = ({ code, className = "w-f
   };
 
   return getIcon();
+};
+
+interface UtilityIconProps {
+  type: 'uv' | 'sunrise' | 'wind' | 'rain' | 'feels-like' | 'humidity' | 'visibility' | 'pressure' | 'moon' | 'cloud' | 'soil' | 'averages';
+  className?: string;
+}
+
+export const UtilityIcon: React.FC<UtilityIconProps> = ({ type, className = "w-full h-full" }) => {
+  const iconProps = { className };
+
+  switch (type) {
+    case 'uv':
+      return (
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <Sun {...iconProps} className={`${className} text-yellow-500`} />
+        </motion.div>
+      );
+    case 'sunrise':
+      return (
+        <motion.div
+          animate={{ y: [2, -2, 2] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Sunrise {...iconProps} className={`${className} text-orange-400`} />
+        </motion.div>
+      );
+    case 'wind':
+      return (
+        <motion.div
+          animate={{ x: [-2, 2, -2] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Wind {...iconProps} className={`${className} text-blue-300`} />
+        </motion.div>
+      );
+    case 'rain':
+      return (
+        <motion.div
+          animate={{ y: [-1, 1, -1] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Umbrella {...iconProps} className={`${className} text-blue-400`} />
+        </motion.div>
+      );
+    case 'feels-like':
+      return (
+        <motion.div
+          animate={{ scaleY: [1, 1.1, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Thermometer {...iconProps} className={`${className} text-red-400`} />
+        </motion.div>
+      );
+    case 'humidity':
+      return (
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Droplets {...iconProps} className={`${className} text-blue-500`} />
+        </motion.div>
+      );
+    case 'visibility':
+      return (
+        <motion.div
+          animate={{ opacity: [0.7, 1, 0.7] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Eye {...iconProps} className={`${className} text-teal-400`} />
+        </motion.div>
+      );
+    case 'pressure':
+      return (
+        <motion.div
+          animate={{ rotate: [-10, 10, -10] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Gauge {...iconProps} className={`${className} text-purple-400`} />
+        </motion.div>
+      );
+    case 'moon':
+      return (
+        <motion.div
+          animate={{ rotate: [-5, 5, -5] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Moon {...iconProps} className={`${className} text-indigo-300`} />
+        </motion.div>
+      );
+    case 'cloud':
+      return (
+        <motion.div
+          animate={{ x: [-2, 2, -2] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Cloud {...iconProps} className={`${className} text-gray-400`} />
+        </motion.div>
+      );
+    case 'soil':
+      return (
+        <motion.div
+          animate={{ y: [1, -1, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Layers {...iconProps} className={`${className} text-amber-600`} />
+        </motion.div>
+      );
+    case 'averages':
+      return (
+        <motion.div
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Activity {...iconProps} className={`${className} text-green-400`} />
+        </motion.div>
+      );
+    default:
+      return <Activity {...iconProps} />;
+  }
+};
+
+interface PollutantIconProps {
+  type: 'shield' | 'leaf' | 'sprout' | 'flower';
+  className?: string;
+}
+
+export const PollutantIcon: React.FC<PollutantIconProps> = ({ type, className = "w-full h-full" }) => {
+  const iconProps = { className };
+
+  switch (type) {
+    case 'shield':
+      return (
+        <motion.div
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <ShieldCheck {...iconProps} className={`${className} text-emerald-400`} />
+        </motion.div>
+      );
+    case 'leaf':
+      return (
+        <motion.div
+          animate={{ rotate: [-5, 5, -5] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Leaf {...iconProps} className={`${className} text-green-400`} />
+        </motion.div>
+      );
+    case 'sprout':
+      return (
+        <motion.div
+          animate={{ y: [1, -1, 1] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Sprout {...iconProps} className={`${className} text-lime-400`} />
+        </motion.div>
+      );
+    case 'flower':
+      return (
+        <motion.div
+          animate={{ rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Flower {...iconProps} className={`${className} text-pink-400`} />
+        </motion.div>
+      );
+    default:
+      return <ShieldCheck {...iconProps} />;
+  }
 };
 
 // Keep for backward compatibility if needed, but we'll try to replace usages
