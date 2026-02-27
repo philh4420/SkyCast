@@ -7,10 +7,12 @@ import { CalendarDays } from 'lucide-react';
 interface DailyForecastListProps {
   data: DailyForecast[];
   unit: 'metric' | 'imperial';
+  theme: 'light' | 'dark';
 }
 
-export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit }) => {
+export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit, theme }) => {
   const forecastData = data.slice(0, 10); 
+  const isDark = theme === 'dark';
   
   if (!forecastData.length) return null;
 
@@ -18,14 +20,23 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
   const maxOfAll = Math.max(...forecastData.map(d => d.tempMax));
   const range = maxOfAll - minOfAll;
 
+  const containerClass = isDark 
+    ? 'bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:bg-white/15' 
+    : 'bg-white/60 backdrop-blur-xl border border-white/40 shadow-xl hover:bg-white/80';
+    
+  const textPrimary = isDark ? 'text-white' : 'text-slate-800';
+  const textSecondary = isDark ? 'opacity-60' : 'text-slate-500';
+  const borderClass = isDark ? 'border-white/5' : 'border-slate-200/50';
+  const barBg = isDark ? 'bg-black/30' : 'bg-slate-300/50';
+
   return (
-    <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl hover:bg-white/15 transition-colors duration-500">
-      <div className="flex items-center mb-4 px-2 opacity-70">
+    <div className={`${containerClass} rounded-[2.5rem] p-6 transition-colors duration-500`}>
+      <div className={`flex items-center mb-4 px-2 ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
          <CalendarDays className="w-4 h-4 mr-2" />
          <h3 className="text-sm font-medium uppercase tracking-wider">10-Day Forecast</h3>
       </div>
       
-      <div className="flex flex-col">
+      <div className={`flex flex-col ${textPrimary}`}>
         {forecastData.map((day, idx) => {
           const date = new Date(day.date);
           const dayName = idx === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
@@ -37,7 +48,7 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
           const barWidth = ((day.tempMax - day.tempMin) / range) * 100;
 
           return (
-            <div key={idx} className="flex items-center justify-between py-3 border-b border-white/5 last:border-0 px-2 group">
+            <div key={idx} className={`flex items-center justify-between py-3 border-b last:border-0 px-2 group ${borderClass}`}>
               
               {/* Day Name */}
               <div className="w-16 text-lg font-medium">
@@ -50,15 +61,15 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
                    <WeatherIcon code={day.iconCode} />
                  </div>
                  {day.precipitationProb !== undefined && day.precipitationProb > 20 && (
-                    <span className="text-[10px] font-bold text-blue-300 mt-0.5">{day.precipitationProb}%</span>
+                    <span className="text-[10px] font-bold text-blue-400 mt-0.5">{day.precipitationProb}%</span>
                  )}
               </div>
 
               {/* Temperature Bar */}
               <div className="flex items-center flex-1 ml-4 gap-3">
-                 <span className="text-lg font-medium opacity-60 w-8 text-right">{min}°</span>
+                 <span className={`text-lg font-medium w-8 text-right ${textSecondary}`}>{min}°</span>
                  
-                 <div className="flex-1 h-1.5 bg-black/30 rounded-full overflow-hidden relative">
+                 <div className={`flex-1 h-1.5 rounded-full overflow-hidden relative ${barBg}`}>
                     <div 
                       className="absolute h-full rounded-full bg-gradient-to-r from-blue-400 via-green-400 to-orange-400 opacity-80"
                       style={{ left: `${leftOffset}%`, width: `${barWidth}%` }}

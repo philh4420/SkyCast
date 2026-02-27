@@ -7,19 +7,25 @@ import { UtilityIcon } from '../icons';
 interface ForecastChartProps {
   data: HourlyForecast[];
   unit: 'metric' | 'imperial';
+  theme: 'light' | 'dark';
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, isDark }: any) => {
   if (active && payload && payload.length) {
     const d = payload[0].payload;
+    const bgClass = isDark ? 'bg-black/40 backdrop-blur-xl border-white/20 text-white' : 'bg-white/80 backdrop-blur-xl border-white/40 text-slate-800 shadow-xl';
+    const labelClass = isDark ? 'text-white/70 border-white/10' : 'text-slate-500 border-slate-200';
+    const subTextClass = isDark ? 'opacity-60' : 'text-slate-500';
+    const cardBg = isDark ? 'bg-white/5 border-white/5' : 'bg-white/50 border-white/20';
+
     return (
-      <div className="bg-black/40 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl text-white min-w-[200px] z-50 animate-fade-in">
-        <p className="text-xs font-bold uppercase tracking-wider text-white/70 mb-3 border-b border-white/10 pb-2">{label}</p>
+      <div className={`${bgClass} border p-4 rounded-2xl shadow-2xl min-w-[200px] z-50 animate-fade-in`}>
+        <p className={`text-xs font-bold uppercase tracking-wider mb-3 border-b pb-2 ${labelClass}`}>{label}</p>
         
         <div className="flex items-center justify-between mb-4">
             <span className="text-4xl font-bold tracking-tighter">{d.temp}°</span>
             <div className="text-right">
-                <div className="text-[10px] font-medium opacity-60 uppercase mb-0.5">Feels Like</div>
+                <div className={`text-[10px] font-medium uppercase mb-0.5 ${subTextClass}`}>Feels Like</div>
                 <div className="flex items-center justify-end gap-1.5">
                    <div className="w-3 h-3 opacity-80">
                       <UtilityIcon type="feels-like" />
@@ -29,19 +35,19 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             </div>
         </div>
 
-        <div className="space-y-2.5 bg-white/5 p-3 rounded-xl border border-white/5">
+        <div className={`space-y-2.5 p-3 rounded-xl border ${cardBg}`}>
             <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 opacity-70">
+                <div className={`flex items-center gap-2 ${subTextClass}`}>
                     <div className="w-3.5 h-3.5">
                        <UtilityIcon type="rain" />
                     </div>
                     <span>Precipitation</span>
                 </div>
-                <span className="font-medium text-blue-200">{d.precip}%</span>
+                <span className={`font-medium ${isDark ? 'text-blue-200' : 'text-blue-600'}`}>{d.precip}%</span>
             </div>
             
             <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 opacity-70">
+                <div className={`flex items-center gap-2 ${subTextClass}`}>
                     <div className="w-3.5 h-3.5">
                        <UtilityIcon type="wind" />
                     </div>
@@ -51,7 +57,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             </div>
 
             <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 opacity-70">
+                <div className={`flex items-center gap-2 ${subTextClass}`}>
                     <div className="w-3.5 h-3.5">
                        <UtilityIcon type="humidity" />
                     </div>
@@ -62,7 +68,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         </div>
         
         {d.condition && (
-             <div className="mt-3 text-[10px] font-medium text-center bg-white/10 py-1.5 rounded-lg text-white/80 border border-white/5 uppercase tracking-wide">
+             <div className={`mt-3 text-[10px] font-medium text-center py-1.5 rounded-lg border uppercase tracking-wide ${isDark ? 'bg-white/10 text-white/80 border-white/5' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                 {d.condition}
              </div>
         )}
@@ -72,8 +78,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit }) => {
+export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit, theme }) => {
   if (!data || data.length === 0) return null;
+  const isDark = theme === 'dark';
 
   // Process data for the next 24 hours
   const chartData = data.slice(0, 24).map(d => ({
@@ -92,7 +99,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit }) => {
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4 px-2 opacity-70">
+      <div className={`flex items-center justify-between mb-4 px-2 ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
          <div className="flex items-center">
             <div className="w-4 h-4 mr-2">
                <UtilityIcon type="averages" />
@@ -101,7 +108,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit }) => {
          </div>
          <div className="flex items-center gap-3 text-xs font-medium">
              <div className="flex items-center gap-1">
-                 <div className="w-2 h-2 rounded-full bg-white"></div>
+                 <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-white' : 'bg-slate-800'}`}></div>
                  <span>Temp</span>
              </div>
              <div className="flex items-center gap-1">
@@ -116,14 +123,14 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit }) => {
           <ComposedChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#ffffff" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
+                <stop offset="5%" stopColor={isDark ? "#ffffff" : "#334155"} stopOpacity={0.3}/>
+                <stop offset="95%" stopColor={isDark ? "#ffffff" : "#334155"} stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.1)" strokeDasharray="3 3" />
+            <CartesianGrid vertical={false} stroke={isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"} strokeDasharray="3 3" />
             <XAxis 
               dataKey="time" 
-              tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 500 }} 
+              tick={{ fill: isDark ? 'rgba(255,255,255,0.6)' : '#64748b', fontSize: 12, fontWeight: 500 }} 
               axisLine={false}
               tickLine={false}
               interval="preserveStartEnd"
@@ -146,7 +153,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit }) => {
               domain={[0, 100]}
             />
 
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1 }} />
+            <Tooltip content={<CustomTooltip isDark={isDark} />} cursor={{ stroke: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)', strokeWidth: 1 }} />
             
             {/* Precipitation Bars */}
             <Bar yAxisId="right" dataKey="precip" barSize={8} radius={[4, 4, 0, 0]}>
@@ -160,11 +167,11 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit }) => {
               yAxisId="left"
               type="monotone" 
               dataKey="temp" 
-              stroke="#ffffff" 
+              stroke={isDark ? "#ffffff" : "#334155"} 
               strokeWidth={3}
               fillOpacity={1} 
               fill="url(#colorTemp)" 
-              activeDot={{ r: 6, strokeWidth: 0, fill: '#fff' }}
+              activeDot={{ r: 6, strokeWidth: 0, fill: isDark ? '#fff' : '#1e293b' }}
             />
           </ComposedChart>
         </ResponsiveContainer>

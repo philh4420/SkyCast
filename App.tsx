@@ -223,7 +223,7 @@ const App: React.FC = () => {
           <div className="animate-fade-in pb-10 flex flex-col gap-6">
             
             {/* ALERTS */}
-            {weather.alerts && <AlertsBanner alerts={weather.alerts} />}
+            {weather.alerts && <AlertsBanner alerts={weather.alerts} theme={settings.theme} />}
 
             {/* CONTENT STACK */}
             <div className="flex flex-col gap-6">
@@ -235,12 +235,12 @@ const App: React.FC = () => {
                 <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
                   {/* HERO */}
                   <div className="w-full">
-                    <CurrentWeather data={weather} unit={settings.units} />
+                    <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
                   </div>
                   
                   {/* 10-DAY FORECAST */}
                   <div className="w-full">
-                    <DailyForecastList data={weather.forecast} unit={settings.units} />
+                    <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
                   </div>
                 </div>
 
@@ -249,29 +249,29 @@ const App: React.FC = () => {
                   
                   {/* HOURLY TIMELINE */}
                   <div className={`${glassClass} rounded-[2.5rem] p-6 overflow-hidden`}>
-                    <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} />
+                    <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
                   </div>
 
                   {/* WEATHER DETAILS GRID */}
                   <div className="w-full">
-                    <WeatherDetailsGrid data={weather} unit={settings.units} />
+                    <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
                   </div>
 
                   {/* MAP & RADAR ROW */}
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     <div className="w-full aspect-square md:aspect-video xl:aspect-auto h-full min-h-[350px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
-                      <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} />
+                      <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
                     </div>
                     {weather.current.airQuality && (
                       <div className="w-full h-full min-h-[350px]">
-                        <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} />
+                        <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
                       </div>
                     )}
                   </div>
 
                   {/* CHART */}
                   <div className={`${glassClass} rounded-[2.5rem] p-6 h-[350px]`}>
-                    <ForecastChart data={weather.hourly} unit={settings.units} />
+                    <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
                   </div>
 
                 </div>

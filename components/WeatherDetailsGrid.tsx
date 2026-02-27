@@ -6,6 +6,7 @@ import { UtilityIcon } from '../icons';
 interface WeatherDetailsGridProps {
   data: WeatherData;
   unit: 'metric' | 'imperial';
+  theme: 'light' | 'dark';
 }
 
 const getAQIInfo = (aqi: number) => {
@@ -16,26 +17,37 @@ const getAQIInfo = (aqi: number) => {
   return { color: 'text-purple-400', bg: 'bg-purple-500/10', label: 'Hazardous' };
 };
 
-const BentoBox = ({ title, icon, children, className = "" }: any) => (
-  <div className={`group relative bg-white/10 border border-white/10 rounded-[2rem] p-5 flex flex-col backdrop-blur-xl shadow-lg hover:bg-white/15 hover:border-white/20 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 ease-out aspect-square overflow-hidden ${className}`}>
-    {/* Subtle gradient overlay on hover */}
-    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+const BentoBox = ({ title, icon, children, className = "", isDark }: any) => {
+  const containerClass = isDark 
+    ? 'bg-white/10 border-white/10 shadow-lg hover:bg-white/15 hover:border-white/20' 
+    : 'bg-white/60 border-white/40 shadow-xl hover:bg-white/80 hover:border-white/60';
     
-    <div className="flex items-center gap-2 opacity-60 mb-3 group-hover:opacity-90 transition-opacity duration-300 relative z-10">
-      <div className="w-4 h-4 drop-shadow-sm">
-        {icon}
-      </div>
-      <span className="text-xs font-semibold uppercase tracking-wider drop-shadow-sm">{title}</span>
-    </div>
-    
-    <div className="flex-1 flex flex-col justify-between relative z-10">
-      {children}
-    </div>
-  </div>
-);
+  const textPrimary = isDark ? 'text-white' : 'text-slate-800';
+  const textSecondary = isDark ? 'opacity-60' : 'text-slate-500';
 
-export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, unit }) => {
+  return (
+    <div className={`group relative ${containerClass} border rounded-[2rem] p-5 flex flex-col backdrop-blur-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 ease-out aspect-square overflow-hidden ${className} ${textPrimary}`}>
+      {/* Subtle gradient overlay on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      
+      <div className={`flex items-center gap-2 mb-3 group-hover:opacity-90 transition-opacity duration-300 relative z-10 ${textSecondary}`}>
+        <div className="w-4 h-4 drop-shadow-sm">
+          {icon}
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wider drop-shadow-sm">{title}</span>
+      </div>
+      
+      <div className="flex-1 flex flex-col justify-between relative z-10">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, unit, theme }) => {
   const { current, forecast } = data;
+  const isDark = theme === 'dark';
+  const textSecondary = isDark ? 'opacity-70' : 'text-slate-500';
   
   // Basic Values
   const temp = Math.round(current.temp);
@@ -63,70 +75,70 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
         
         {/* UV Index */}
-        <BentoBox title="UV Index" icon={<UtilityIcon type="uv" />}>
+        <BentoBox title="UV Index" icon={<UtilityIcon type="uv" />} isDark={isDark}>
           <div>
             <div className="text-3xl font-medium">{current.uvIndex ?? 0}</div>
             <div className="text-sm font-medium">{getUVDesc(current.uvIndex ?? 0)}</div>
           </div>
           <div className="mt-2">
             <div className="h-1.5 w-full rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-purple-500 relative">
-              <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full border border-black/50 shadow-sm" style={{ left: `${Math.min(((current.uvIndex ?? 0) / 11) * 100, 100)}%` }} />
+              <div className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-sm ${isDark ? 'border-black/50' : 'border-slate-300'}`} style={{ left: `${Math.min(((current.uvIndex ?? 0) / 11) * 100, 100)}%` }} />
             </div>
           </div>
         </BentoBox>
 
         {/* Sunrise */}
-        <BentoBox title="Sunrise" icon={<UtilityIcon type="sunrise" />}>
+        <BentoBox title="Sunrise" icon={<UtilityIcon type="sunrise" />} isDark={isDark}>
           <div className="text-3xl font-medium">{current.sunrise}</div>
-          <div className="text-xs opacity-70">Sunset: {current.sunset}</div>
+          <div className={`text-xs ${textSecondary}`}>Sunset: {current.sunset}</div>
         </BentoBox>
 
         {/* Wind */}
-        <BentoBox title="Wind" icon={<UtilityIcon type="wind" />}>
+        <BentoBox title="Wind" icon={<UtilityIcon type="wind" />} isDark={isDark}>
           <div className="flex items-center justify-between">
             <div>
               <div className="text-3xl font-medium">{windSpeedVal}</div>
-              <div className="text-xs font-medium opacity-70">{windUnit}</div>
+              <div className={`text-xs font-medium ${textSecondary}`}>{windUnit}</div>
             </div>
             <div className="relative w-10 h-10 flex items-center justify-center">
-               <Navigation className="w-8 h-8 opacity-80" style={{ transform: `rotate(${current.windDir || 0}deg)` }} />
+               <Navigation className={`w-8 h-8 ${isDark ? 'opacity-80' : 'text-slate-600'}`} style={{ transform: `rotate(${current.windDir || 0}deg)` }} />
             </div>
           </div>
-          {gust && <div className="text-xs opacity-60 mt-1">Gusts: {gust}</div>}
+          {gust && <div className={`text-xs mt-1 ${textSecondary}`}>Gusts: {gust}</div>}
         </BentoBox>
 
         {/* Rainfall */}
-        <BentoBox title="Rainfall" icon={<UtilityIcon type="rain" />}>
+        <BentoBox title="Rainfall" icon={<UtilityIcon type="rain" />} isDark={isDark}>
           <div className="text-3xl font-medium">{rainChance}%</div>
-          <div className="text-xs opacity-70">
+          <div className={`text-xs ${textSecondary}`}>
             {forecast[0]?.totalPrecip !== undefined ? `${forecast[0].totalPrecip} mm expected` : 'Chance of rain'}
           </div>
         </BentoBox>
 
         {/* Feels Like */}
-        <BentoBox title="Feels Like" icon={<UtilityIcon type="feels-like" />}>
+        <BentoBox title="Feels Like" icon={<UtilityIcon type="feels-like" />} isDark={isDark}>
           <div className="text-3xl font-medium">{feelsLike}°</div>
-          <div className="text-xs opacity-70">
+          <div className={`text-xs ${textSecondary}`}>
             {feelsLike > temp ? 'Humid' : feelsLike < temp ? 'Wind Chill' : 'Actual'}
           </div>
         </BentoBox>
 
         {/* Humidity */}
-        <BentoBox title="Humidity" icon={<UtilityIcon type="humidity" />}>
+        <BentoBox title="Humidity" icon={<UtilityIcon type="humidity" />} isDark={isDark}>
           <div className="text-3xl font-medium">{current.humidity}%</div>
-          <div className="text-xs opacity-70">Dew Point: {dewPointVal}°</div>
+          <div className={`text-xs ${textSecondary}`}>Dew Point: {dewPointVal}°</div>
         </BentoBox>
 
         {/* Visibility */}
-        <BentoBox title="Visibility" icon={<UtilityIcon type="visibility" />}>
+        <BentoBox title="Visibility" icon={<UtilityIcon type="visibility" />} isDark={isDark}>
           <div className="text-3xl font-medium">{visVal}</div>
-          <div className="text-xs opacity-70">{visUnit}</div>
+          <div className={`text-xs ${textSecondary}`}>{visUnit}</div>
         </BentoBox>
 
         {/* Pressure */}
-        <BentoBox title="Pressure" icon={<UtilityIcon type="pressure" />}>
+        <BentoBox title="Pressure" icon={<UtilityIcon type="pressure" />} isDark={isDark}>
           <div className="text-3xl font-medium">{current.pressure}</div>
-          <div className="text-xs opacity-70">hPa</div>
+          <div className={`text-xs ${textSecondary}`}>hPa</div>
         </BentoBox>
     </div>
   );

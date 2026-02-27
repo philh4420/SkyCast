@@ -5,12 +5,14 @@ interface WeatherMapProps {
   lat: number;
   lon: number;
   unit: 'metric' | 'imperial';
+  theme: 'light' | 'dark';
 }
 
 type OverlayType = 'rain' | 'wind' | 'temp' | 'clouds' | 'radar';
 
-export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit }) => {
+export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit, theme }) => {
   const [overlay, setOverlay] = useState<OverlayType>('rain');
+  const isDark = theme === 'dark';
 
   const overlays = [
     { id: 'radar', name: 'Radar', icon: <Radio className="w-4 h-4" /> },
@@ -23,11 +25,15 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit }) => {
   const metricTemp = unit === 'metric' ? '°C' : '°F';
   const metricWind = unit === 'metric' ? 'km/h' : 'mph';
 
+  const containerClass = isDark 
+    ? 'bg-black/20 backdrop-blur-3xl border border-white/10 shadow-2xl' 
+    : 'bg-white/60 backdrop-blur-3xl border border-white/40 shadow-xl';
+
   return (
-    <div className="bg-black/20 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] overflow-hidden relative h-[600px] shadow-2xl flex flex-col group">
+    <div className={`${containerClass} rounded-[2.5rem] overflow-hidden relative h-[600px] flex flex-col group transition-colors duration-500`}>
       {/* Header & Controls */}
-      <div className="absolute top-0 left-0 w-full p-6 z-10 pointer-events-none flex flex-col gap-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent pb-12 transition-opacity">
-        <div className="flex items-center opacity-90">
+      <div className={`absolute top-0 left-0 w-full p-6 z-10 pointer-events-none flex flex-col gap-4 pb-12 transition-opacity ${isDark ? 'bg-gradient-to-b from-black/80 via-black/40 to-transparent' : 'bg-gradient-to-b from-white/80 via-white/40 to-transparent'}`}>
+        <div className={`flex items-center ${isDark ? 'opacity-90 text-white' : 'text-slate-800'}`}>
           <Map className="w-4 h-4 mr-2" />
           <h3 className="text-sm font-medium uppercase tracking-wider">Interactive Weather Map</h3>
         </div>
@@ -40,8 +46,12 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit }) => {
               onClick={() => setOverlay(layer.id as OverlayType)}
               className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all backdrop-blur-md border ${
                 overlay === layer.id 
-                  ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]' 
-                  : 'bg-black/50 text-white/80 border-white/10 hover:bg-white/20 hover:text-white'
+                  ? isDark 
+                    ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]' 
+                    : 'bg-slate-800 text-white border-slate-800 shadow-lg'
+                  : isDark
+                    ? 'bg-black/50 text-white/80 border-white/10 hover:bg-white/20 hover:text-white'
+                    : 'bg-white/50 text-slate-700 border-white/40 hover:bg-white/80 hover:text-slate-900'
               }`}
             >
               {layer.icon}

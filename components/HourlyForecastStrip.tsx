@@ -9,14 +9,16 @@ interface HourlyForecastStripProps {
   unit: 'metric' | 'imperial';
   sunrise?: string;
   sunset?: string;
+  theme: 'light' | 'dark';
 }
 
-export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, unit }) => {
+export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, unit, theme }) => {
   if (!data || data.length === 0) return null;
+  const isDark = theme === 'dark';
 
   return (
     <div className="w-full">
-      <div className="flex items-center mb-4 px-2 opacity-70">
+      <div className={`flex items-center mb-4 px-2 ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
          <Clock className="w-4 h-4 mr-2" />
          <h3 className="text-sm font-medium uppercase tracking-wider">Hourly Forecast</h3>
       </div>
@@ -30,10 +32,10 @@ export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, 
           return (
             <div 
               key={idx} 
-              className="flex-none flex flex-col items-center justify-between h-32 snap-start group"
+              className={`flex-none flex flex-col items-center justify-between h-32 snap-start group ${isDark ? 'text-white' : 'text-slate-800'}`}
             >
               {/* Time */}
-              <span className="text-sm font-medium opacity-90">{timeLabel}</span>
+              <span className={`text-sm font-medium ${isDark ? 'opacity-90' : 'text-slate-500'}`}>{timeLabel}</span>
               
               {/* Icon & Rain */}
               <div className="flex flex-col items-center">
@@ -41,7 +43,7 @@ export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, 
                   <WeatherIcon code={hour.iconCode} />
                 </div>
                 {hour.precipProb > 20 && (
-                  <span className="text-[11px] font-bold text-blue-300 mt-1">{Math.round(hour.precipProb)}%</span>
+                  <span className="text-[11px] font-bold text-blue-400 mt-1">{Math.round(hour.precipProb)}%</span>
                 )}
               </div>
               
