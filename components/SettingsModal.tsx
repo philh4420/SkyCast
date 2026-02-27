@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserSettings } from '../types';
-import { X, Save, Thermometer } from 'lucide-react';
+import { X, Save, Thermometer, Moon, Sun } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -12,6 +12,10 @@ interface SettingsModalProps {
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSave }) => {
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
 
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
   if (!isOpen) return null;
 
   const handleSave = () => {
@@ -20,40 +24,73 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-slate-800 rounded-3xl w-full max-w-md border border-white/10 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl w-full max-w-md border border-white/10 shadow-2xl overflow-hidden transform transition-all scale-100">
         <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-white">Settings</h2>
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-white tracking-tight">Preferences</h2>
             <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white">
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
+            
+            {/* Theme Selection */}
+            <div>
+               <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+                 {localSettings.theme === 'dark' ? <Moon className="w-4 h-4 text-purple-400" /> : <Sun className="w-4 h-4 text-yellow-400" />}
+                 Appearance
+               </label>
+               <div className="grid grid-cols-2 gap-3 bg-black/20 p-1 rounded-2xl border border-white/5">
+                 <button
+                   onClick={() => setLocalSettings({ ...localSettings, theme: 'light' })}
+                   className={`flex items-center justify-center gap-2 p-3 rounded-xl text-sm font-medium transition-all ${
+                     localSettings.theme === 'light'
+                       ? 'bg-white text-slate-900 shadow-lg'
+                       : 'text-gray-400 hover:text-white hover:bg-white/5'
+                   }`}
+                 >
+                   <Sun className="w-4 h-4" />
+                   Light
+                 </button>
+                 <button
+                   onClick={() => setLocalSettings({ ...localSettings, theme: 'dark' })}
+                   className={`flex items-center justify-center gap-2 p-3 rounded-xl text-sm font-medium transition-all ${
+                     localSettings.theme === 'dark'
+                       ? 'bg-slate-700 text-white shadow-lg ring-1 ring-white/10'
+                       : 'text-gray-400 hover:text-white hover:bg-white/5'
+                   }`}
+                 >
+                   <Moon className="w-4 h-4" />
+                   Dark
+                 </button>
+               </div>
+            </div>
+
             {/* Unit Selection */}
             <div>
                <label className="block text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
                  <Thermometer className="w-4 h-4 text-blue-400" />
-                 Temperature & Distance Units
+                 Units
                </label>
-               <div className="grid grid-cols-2 gap-3">
+               <div className="grid grid-cols-2 gap-3 bg-black/20 p-1 rounded-2xl border border-white/5">
                  <button
                    onClick={() => setLocalSettings({ ...localSettings, units: 'metric' })}
-                   className={`p-3 rounded-xl border text-sm font-medium transition-all ${
+                   className={`p-3 rounded-xl text-sm font-medium transition-all ${
                      localSettings.units === 'metric'
-                       ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
-                       : 'bg-slate-700 border-transparent text-gray-400 hover:bg-slate-600'
+                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                       : 'text-gray-400 hover:text-white hover:bg-white/5'
                    }`}
                  >
                    Metric (°C, km/h)
                  </button>
                  <button
                    onClick={() => setLocalSettings({ ...localSettings, units: 'imperial' })}
-                   className={`p-3 rounded-xl border text-sm font-medium transition-all ${
+                   className={`p-3 rounded-xl text-sm font-medium transition-all ${
                      localSettings.units === 'imperial'
-                       ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20'
-                       : 'bg-slate-700 border-transparent text-gray-400 hover:bg-slate-600'
+                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                       : 'text-gray-400 hover:text-white hover:bg-white/5'
                    }`}
                  >
                    Imperial (°F, mph)
@@ -62,25 +99,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
             </div>
 
             {/* Info Section */}
-            <div className="bg-slate-900/50 p-4 rounded-xl border border-white/5">
-               <h4 className="text-gray-200 font-semibold text-sm mb-2">System Status</h4>
-               <p className="text-xs text-gray-400 leading-relaxed mb-2">
-                 SkyCast AI is operating in <strong>Smart Ensemble Mode</strong>.
-               </p>
+            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+               <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <h4 className="text-gray-200 font-semibold text-xs uppercase tracking-wider">System Status</h4>
+               </div>
                <p className="text-xs text-gray-400 leading-relaxed">
-                 We intelligently fuse data from OpenWeatherMap, WeatherAPI.com, and Open-Meteo to provide the most accurate forecast possible. API connectivity is managed automatically.
+                 SkyCast AI is operating in <strong>Smart Ensemble Mode</strong>. We fuse data from multiple providers to ensure maximum accuracy.
                </p>
             </div>
           </div>
         </div>
 
-        <div className="p-6 bg-slate-900/50 border-t border-white/5 flex justify-end">
+        <div className="p-6 bg-black/20 border-t border-white/5 flex justify-end">
           <button
             onClick={handleSave}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-medium transition-all shadow-lg shadow-blue-600/20"
+            className="flex items-center space-x-2 bg-white text-black hover:bg-gray-200 px-8 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95"
           >
-            <Save className="w-5 h-5" />
-            <span>Save Preferences</span>
+            <Save className="w-4 h-4" />
+            <span>Save Changes</span>
           </button>
         </div>
       </div>

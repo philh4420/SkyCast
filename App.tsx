@@ -26,7 +26,8 @@ const App: React.FC = () => {
   const [settings, setSettings] = useState<UserSettings>(() => {
     const saved = localStorage.getItem('skycast-settings');
     const defaultSettings: UserSettings = {
-      units: 'metric'
+      units: 'metric',
+      theme: 'dark'
     };
     if (saved) return { ...defaultSettings, ...JSON.parse(saved) };
     return defaultSettings;
@@ -37,6 +38,20 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('skycast-settings', JSON.stringify(settings));
   }, [settings]);
+
+  // Theme Handling
+  const isDark = settings.theme === 'dark';
+  const themeClass = isDark ? 'text-white' : 'text-slate-900';
+  const bgClass = isDark ? 'bg-black' : 'bg-slate-100';
+  
+  // Premium Glass Effect - Dynamic based on theme
+  const glassClass = isDark 
+    ? 'bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:bg-white/15 transition-colors duration-500'
+    : 'bg-white/60 backdrop-blur-xl border border-white/40 shadow-xl hover:bg-white/80 transition-colors duration-500';
+    
+  const inputClass = isDark
+    ? 'bg-white/10 border-white/10 text-white placeholder-white/50 focus:bg-white/20 focus:border-white/30 backdrop-blur-md'
+    : 'bg-white/60 border-white/20 text-slate-900 placeholder-slate-500 focus:bg-white/80 focus:border-blue-400 backdrop-blur-md shadow-sm';
 
   const fetchData = async (lat: number, lon: number) => {
     setLoading(true);
@@ -103,30 +118,41 @@ const App: React.FC = () => {
 
   const getAtmosphere = (code: string) => {
     const base = "transition-all duration-[2000ms] ease-in-out bg-gradient-to-br";
-    if (!weather) return `${base} from-slate-900 to-black`;
+    if (!weather) return isDark ? `${base} from-slate-900 to-black` : `${base} from-blue-100 to-white`;
 
     const isNight = code.includes('night');
-    if (code.includes('thunder')) return `${base} from-[#1c1c1e] via-[#2c2c2e] to-[#000000]`;
-    if (code.includes('rain') || code.includes('drizzle')) return isNight ? `${base} from-[#1c1c1e] via-[#2c2c2e] to-[#000000]` : `${base} from-[#4a5568] via-[#2d3748] to-[#1a202c]`; 
-    if (code.includes('snow')) return isNight ? `${base} from-[#1c1c1e] via-[#2d3748] to-[#000000]` : `${base} from-[#e2e8f0] via-[#cbd5e1] to-[#94a3b8]`; 
-    if (code.includes('clear')) return isNight ? `${base} from-[#000000] via-[#1c1c1e] to-[#000000]` : `${base} from-[#38bdf8] via-[#0ea5e9] to-[#0284c7]`;
-    if (code.includes('cloudy') || code.includes('fog') || code.includes('mist')) return isNight ? `${base} from-[#1c1c1e] via-[#2c2c2e] to-[#000000]` : `${base} from-[#64748b] via-[#475569] to-[#334155]`; 
-    return `${base} from-[#1c1c1e] via-[#000000] to-[#000000]`;
+    
+    // Dark Mode Gradients
+    if (isDark) {
+        if (code.includes('thunder')) return `${base} from-[#1c1c1e] via-[#2c2c2e] to-[#000000]`;
+        if (code.includes('rain') || code.includes('drizzle')) return isNight ? `${base} from-[#1c1c1e] via-[#2c2c2e] to-[#000000]` : `${base} from-[#4a5568] via-[#2d3748] to-[#1a202c]`; 
+        if (code.includes('snow')) return isNight ? `${base} from-[#1c1c1e] via-[#2d3748] to-[#000000]` : `${base} from-[#e2e8f0] via-[#cbd5e1] to-[#94a3b8]`; 
+        if (code.includes('clear')) return isNight ? `${base} from-[#000000] via-[#1c1c1e] to-[#000000]` : `${base} from-[#38bdf8] via-[#0ea5e9] to-[#0284c7]`;
+        if (code.includes('cloudy') || code.includes('fog') || code.includes('mist')) return isNight ? `${base} from-[#1c1c1e] via-[#2c2c2e] to-[#000000]` : `${base} from-[#64748b] via-[#475569] to-[#334155]`; 
+        return `${base} from-[#1c1c1e] via-[#000000] to-[#000000]`;
+    }
+
+    // Light Mode Gradients
+    if (code.includes('thunder')) return `${base} from-slate-700 via-slate-600 to-slate-800`;
+    if (code.includes('rain') || code.includes('drizzle')) return `${base} from-blue-200 via-slate-200 to-slate-300`; 
+    if (code.includes('snow')) return `${base} from-blue-50 via-white to-blue-100`; 
+    if (code.includes('clear')) return isNight ? `${base} from-indigo-900 via-slate-800 to-black` : `${base} from-blue-400 via-blue-300 to-blue-100`;
+    if (code.includes('cloudy') || code.includes('fog') || code.includes('mist')) return `${base} from-slate-300 via-slate-200 to-slate-100`; 
+    return `${base} from-blue-50 to-white`;
   };
 
   const bgGradient = getAtmosphere(weather?.current.iconCode || '');
-  const textColor = weather?.current.iconCode.includes('snow') && !weather?.current.iconCode.includes('night') ? 'text-slate-900' : 'text-white';
   
-  // Premium Glass Effect
-  const glassClass = 'bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:bg-white/15 transition-colors duration-500';
-  const inputClass = 'bg-white/10 border-white/10 text-white placeholder-white/50 focus:bg-white/20 focus:border-white/30 backdrop-blur-md';
+  // Override text color for specific conditions if needed, but generally stick to theme
+  const finalTextColor = isDark ? 'text-white' : 'text-slate-900';
 
   return (
-    <div className={`min-h-screen ${textColor} font-sans relative overflow-x-hidden selection:bg-white/30 bg-black`}>
+    <div className={`min-h-screen ${finalTextColor} font-sans relative overflow-x-hidden selection:bg-blue-500/30 ${bgClass}`}>
       
-      {/* Video Background */}
+      {/* Video Background - Only show if Dark Mode is active OR if user prefers it (could be another setting) */}
+      {/* For now, we'll keep video background only in Dark Mode to ensure readability in Light Mode, or reduce opacity in Light Mode */}
       {videoUrl && (
-        <div className="fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out opacity-100">
+        <div className={`fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out ${isDark ? 'opacity-100' : 'opacity-20'}`}>
            <video autoPlay loop muted playsInline className="w-full h-full object-cover scale-105 filter brightness-75 contrast-125" key={videoUrl}>
              <source src={videoUrl} type="video/mp4" />
            </video>
@@ -134,8 +160,8 @@ const App: React.FC = () => {
       )}
 
       {/* Overlays */}
-      <div className={`fixed inset-0 z-0 ${bgGradient} mix-blend-multiply pointer-events-none opacity-80`}></div>
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay z-0" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
+      <div className={`fixed inset-0 z-0 ${bgGradient} mix-blend-multiply pointer-events-none ${isDark ? 'opacity-80' : 'opacity-40'}`}></div>
+      <div className={`fixed inset-0 pointer-events-none mix-blend-overlay z-0 ${isDark ? 'opacity-[0.03]' : 'opacity-[0.05]'}`} style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-8 py-8 max-w-[1600px]">
         

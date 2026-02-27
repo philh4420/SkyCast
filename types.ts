@@ -98,6 +98,7 @@ export enum WeatherProvider {
 
 export interface UserSettings {
   units: 'metric' | 'imperial';
+  theme: 'light' | 'dark';
 }
 
 export interface GeoLocation {
