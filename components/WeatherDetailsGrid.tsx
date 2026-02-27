@@ -1,8 +1,8 @@
 import React from 'react';
 import { WeatherData } from '../types';
-import { Navigation } from 'lucide-react';
 import { UtilityIcon } from '../icons';
 import { SunDial } from './SunDial';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface WeatherDetailsGridProps {
   data: WeatherData;
@@ -18,37 +18,21 @@ const getAQIInfo = (aqi: number) => {
   return { color: 'text-purple-400', bg: 'bg-purple-500/10', label: 'Hazardous' };
 };
 
-const BentoBox = ({ title, icon, children, className = "", isDark }: any) => {
-  const containerClass = isDark 
-    ? 'bg-white/5 border-white/10 shadow-lg hover:bg-white/10 hover:border-white/15' 
-    : 'bg-white/60 border-white/40 shadow-xl hover:bg-white/80 hover:border-white/60';
-    
-  const textPrimary = isDark ? 'text-white' : 'text-slate-800';
-  const textSecondary = isDark ? 'opacity-70' : 'text-slate-500';
-
-  return (
-    <div className={`group relative ${containerClass} border rounded-3xl p-5 flex flex-col backdrop-blur-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 ease-out aspect-square overflow-hidden ${className} ${textPrimary}`}>
-      {/* Subtle gradient overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-      
-      <div className={`flex items-center gap-2 mb-3 group-hover:opacity-90 transition-opacity duration-300 relative z-10 ${textSecondary}`}>
-        <div className="w-4 h-4 drop-shadow-sm">
-          {icon}
-        </div>
-        <span className="text-xs font-semibold uppercase tracking-wider drop-shadow-sm">{title}</span>
-      </div>
-      
-      <div className="flex-1 flex flex-col justify-between relative z-10">
-        {children}
-      </div>
-    </div>
-  );
-};
+const DetailCard = ({ title, icon, children, className = "", isDark }: any) => (
+  <Card className={`backdrop-blur-2xl bg-white/5 border-white/10 shadow-lg hover:bg-white/10 transition-colors ${!isDark && 'bg-white/50 border-slate-200/80 hover:bg-white/70'} ${className}`}>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className={`text-sm font-medium ${isDark ? 'text-white/70' : 'text-slate-500'}`}>{title}</CardTitle>
+      {icon}
+    </CardHeader>
+    <CardContent>
+      {children}
+    </CardContent>
+  </Card>
+);
 
 export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, unit, theme }) => {
   const { current, forecast } = data;
   const isDark = theme === 'dark';
-  const textSecondary = isDark ? 'opacity-70' : 'text-slate-500';
   
   // Basic Values
   const temp = Math.round(current.temp);
@@ -72,11 +56,13 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
     return 'Extreme';
   };
 
+  const textPrimary = isDark ? 'text-white' : 'text-slate-900';
+  const textSecondary = isDark ? 'text-white/50' : 'text-slate-500';
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
         
-        {/* Sun Dial - New Component */}
-        <BentoBox title="Sun & Moon" icon={<UtilityIcon type="sunrise" />} isDark={isDark} className="col-span-2 md:col-span-1 xl:col-span-2 2xl:col-span-2">
+        <div className="col-span-2 md:col-span-1 xl:col-span-2 2xl:col-span-2">
           {current.sunrise && current.sunset && current.moonrise && current.moonset && (
             <SunDial 
               sunrise={current.sunrise}
@@ -86,68 +72,43 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
               isDark={isDark} 
             />
           )}
-        </BentoBox>
+        </div>
 
-        {/* UV Index */}
-        <BentoBox title="UV Index" icon={<UtilityIcon type="uv" />} isDark={isDark}>
+        <DetailCard title="UV Index" icon={<UtilityIcon type="uv" />} isDark={isDark}>
           <div>
-            <div className="text-3xl font-medium">{current.uvIndex ?? 0}</div>
-            <div className="text-sm font-medium">{getUVDesc(current.uvIndex ?? 0)}</div>
+            <div className={`text-2xl font-bold ${textPrimary}`}>{current.uvIndex ?? 0}</div>
+            <p className={`text-xs ${textSecondary}`}>{getUVDesc(current.uvIndex ?? 0)}</p>
           </div>
-          <div className="mt-2">
-            <div className="h-1.5 w-full rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-purple-500 relative">
-              <div className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-sm ${isDark ? 'border-black/50' : 'border-slate-300'}`} style={{ left: `${Math.min(((current.uvIndex ?? 0) / 11) * 100, 100)}%` }} />
-            </div>
-          </div>
-        </BentoBox>
+        </DetailCard>
 
-        {/* Wind */}
-        <BentoBox title="Wind" icon={<UtilityIcon type="wind" />} isDark={isDark}>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-3xl font-medium">{windSpeedVal}</div>
-              <div className={`text-xs font-medium ${textSecondary}`}>{windUnit}</div>
-            </div>
-            <div className="relative w-10 h-10 flex items-center justify-center">
-               <Navigation className={`w-8 h-8 ${isDark ? 'opacity-80' : 'text-slate-600'}`} style={{ transform: `rotate(${current.windDir || 0}deg)` }} />
-            </div>
-          </div>
-          {gust && <div className={`text-xs mt-1 ${textSecondary}`}>Gusts: {gust}</div>}
-        </BentoBox>
+        <DetailCard title="Wind" icon={<UtilityIcon type="wind" />} isDark={isDark}>
+          <div className={`text-2xl font-bold ${textPrimary}`}>{windSpeedVal} {windUnit}</div>
+          {gust && <p className={`text-xs ${textSecondary}`}>Gusts: {gust}</p>}
+        </DetailCard>
 
-        {/* Rainfall */}
-        <BentoBox title="Rainfall" icon={<UtilityIcon type="rain" />} isDark={isDark}>
-          <div className="text-3xl font-medium">{rainChance}%</div>
-          <div className={`text-xs ${textSecondary}`}>
-            {forecast[0]?.totalPrecip !== undefined ? `${forecast[0].totalPrecip} mm expected` : 'Chance of rain'}
-          </div>
-        </BentoBox>
+        <DetailCard title="Rainfall" icon={<UtilityIcon type="rain" />} isDark={isDark}>
+          <div className={`text-2xl font-bold ${textPrimary}`}>{rainChance}%</div>
+          <p className={`text-xs ${textSecondary}`}>{forecast[0]?.totalPrecip ?? 0} mm expected</p>
+        </DetailCard>
 
-        {/* Feels Like */}
-        <BentoBox title="Feels Like" icon={<UtilityIcon type="feels-like" />} isDark={isDark}>
-          <div className="text-3xl font-medium">{feelsLike}°</div>
-          <div className={`text-xs ${textSecondary}`}>
-            {feelsLike > temp ? 'Humid' : feelsLike < temp ? 'Wind Chill' : 'Actual'}
-          </div>
-        </BentoBox>
+        <DetailCard title="Feels Like" icon={<UtilityIcon type="feels-like" />} isDark={isDark}>
+          <div className={`text-2xl font-bold ${textPrimary}`}>{feelsLike}°</div>
+          <p className={`text-xs ${textSecondary}`}>{feelsLike > temp ? 'Humid' : feelsLike < temp ? 'Wind Chill' : 'Actual'}</p>
+        </DetailCard>
 
-        {/* Humidity */}
-        <BentoBox title="Humidity" icon={<UtilityIcon type="humidity" />} isDark={isDark}>
-          <div className="text-3xl font-medium">{current.humidity}%</div>
-          <div className={`text-xs ${textSecondary}`}>Dew Point: {dewPointVal}°</div>
-        </BentoBox>
+        <DetailCard title="Humidity" icon={<UtilityIcon type="humidity" />} isDark={isDark}>
+          <div className={`text-2xl font-bold ${textPrimary}`}>{current.humidity}%</div>
+          <p className={`text-xs ${textSecondary}`}>Dew Point: {dewPointVal}°</p>
+        </DetailCard>
 
-        {/* Visibility */}
-        <BentoBox title="Visibility" icon={<UtilityIcon type="visibility" />} isDark={isDark}>
-          <div className="text-3xl font-medium">{visVal}</div>
-          <div className={`text-xs ${textSecondary}`}>{visUnit}</div>
-        </BentoBox>
+        <DetailCard title="Visibility" icon={<UtilityIcon type="visibility" />} isDark={isDark}>
+          <div className={`text-2xl font-bold ${textPrimary}`}>{visVal} {visUnit}</div>
+        </DetailCard>
 
-        {/* Pressure */}
-        <BentoBox title="Pressure" icon={<UtilityIcon type="pressure" />} isDark={isDark}>
-          <div className="text-3xl font-medium">{current.pressure}</div>
-          <div className={`text-xs ${textSecondary}`}>hPa</div>
-        </BentoBox>
+        <DetailCard title="Pressure" icon={<UtilityIcon type="pressure" />} isDark={isDark}>
+          <div className={`text-2xl font-bold ${textPrimary}`}>{current.pressure} hPa</div>
+        </DetailCard>
     </div>
   );
 };
+

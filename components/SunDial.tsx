@@ -1,4 +1,6 @@
 import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Sun, Moon } from 'lucide-react';
 
 interface SunDialProps {
   sunrise: string;
@@ -26,34 +28,43 @@ export const SunDial: React.FC<SunDialProps> = ({ sunrise, sunset, moonrise, moo
   };
 
   const textColor = isDark ? 'text-white' : 'text-slate-800';
+  const subTextColor = isDark ? 'text-white/50' : 'text-slate-500';
   const trackColor = isDark ? 'border-white/10' : 'border-slate-200';
   const sunColor = isDark ? 'bg-yellow-400' : 'bg-yellow-500';
   const moonColor = isDark ? 'bg-slate-300' : 'bg-slate-400';
 
   return (
-    <div className={`w-full aspect-square rounded-full border-2 ${trackColor} relative flex items-center justify-center`}>
-      {/* Sun Arc */}
-      <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(sunrise)}deg)` }}>
-        <div className={`absolute w-4 h-4 rounded-full ${sunColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0`}></div>
-      </div>
-      <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(sunset)}deg)` }}>
-        <div className={`absolute w-4 h-4 rounded-full ${sunColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0`}></div>
-      </div>
+    <Card className={`h-full backdrop-blur-2xl bg-white/5 border-white/10 shadow-lg flex flex-col items-center justify-center p-6 ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
+      <div className={`w-full max-w-[180px] aspect-square rounded-full border-2 ${trackColor} relative flex items-center justify-center`}>
+        {/* Sun Arc */}
+        <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(sunrise)}deg)` }}>
+          <div className={`absolute w-4 h-4 rounded-full ${sunColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0 shadow-[0_0_10px_rgba(250,204,21,0.5)]`}></div>
+        </div>
+        <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(sunset)}deg)` }}>
+          <div className={`absolute w-4 h-4 rounded-full ${sunColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0 shadow-[0_0_10px_rgba(250,204,21,0.5)]`}></div>
+        </div>
 
-      {/* Moon Arc */}
-      <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(moonrise)}deg)` }}>
-        <div className={`absolute w-3 h-3 rounded-full ${moonColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0`}></div>
-      </div>
-      <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(moonset)}deg)` }}>
-        <div className={`absolute w-3 h-3 rounded-full ${moonColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0`}></div>
-      </div>
+        {/* Moon Arc */}
+        <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(moonrise)}deg)` }}>
+          <div className={`absolute w-3 h-3 rounded-full ${moonColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0`}></div>
+        </div>
+        <div className="absolute inset-0" style={{ transform: `rotate(${getRotation(moonset)}deg)` }}>
+          <div className={`absolute w-3 h-3 rounded-full ${moonColor} -translate-x-1/2 -translate-y-1/2 top-1/2 left-0`}></div>
+        </div>
 
-      <div className={`text-center ${textColor}`}>
-        <div className="text-xs opacity-60">Sunrise</div>
-        <div className="text-lg font-bold">{sunrise}</div>
-        <div className="text-xs opacity-60 mt-2">Sunset</div>
-        <div className="text-lg font-bold">{sunset}</div>
+        <div className={`text-center ${textColor}`}>
+          <div className="flex flex-col items-center gap-1">
+            <Sun className="w-4 h-4 text-yellow-400" />
+            <div className="text-[10px] uppercase font-bold tracking-widest opacity-60">Daylight</div>
+            <div className="text-sm font-bold">{sunrise} - {sunset}</div>
+          </div>
+          <div className="flex flex-col items-center gap-1 mt-4">
+            <Moon className="w-4 h-4 text-slate-400" />
+            <div className="text-[10px] uppercase font-bold tracking-widest opacity-60">Night</div>
+            <div className="text-sm font-bold">{moonrise} - {moonset}</div>
+          </div>
+        </div>
       </div>
-    </div>
+    </Card>
   );
 };

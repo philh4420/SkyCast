@@ -15,6 +15,11 @@ import { WeatherDetailsGrid } from './components/WeatherDetailsGrid';
 
 import { AlertsBanner } from './components/AlertsBanner';
 import { Search, MapPin, Settings, AlertTriangle, CloudLightning, CloudSun } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const App: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -179,38 +184,59 @@ const App: React.FC = () => {
                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Search className={`w-4 h-4 transition-colors ${isDark ? 'text-white/50 group-focus-within:text-white' : 'text-slate-500 group-focus-within:text-slate-900'}`} />
                </div>
-               <input 
+               <Input 
                  type="text" 
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
                  placeholder="Search city..." 
-                 className={`w-full ${inputClass} backdrop-blur-3xl border rounded-full pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none transition-all shadow-inner`}
+                 className={`w-full ${inputClass} rounded-full pl-11 pr-4 py-2.5 text-sm font-medium focus:outline-none transition-all shadow-inner border-none`}
                />
              </form>
 
-             <button 
-               onClick={handleCurrentLocation} 
-               className={`p-2.5 ${glassClass} rounded-full transition-all active:scale-95 group`}
-               title="Use Current Location"
-             >
-               <MapPin className="w-5 h-5 group-hover:animate-bounce" />
-             </button>
-             
-             <button 
-               onClick={() => setSettingsOpen(true)} 
-               className={`p-2.5 ${glassClass} rounded-full transition-all active:scale-95 group`}
-               title="Settings"
-             >
-               <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
-             </button>
+             <TooltipProvider>
+               <div className="flex items-center gap-2">
+                 <Tooltip>
+                   <TooltipTrigger asChild>
+                     <Button 
+                       variant="ghost"
+                       size="icon"
+                       onClick={handleCurrentLocation} 
+                       className={`w-10 h-10 ${glassClass} rounded-full transition-all active:scale-95 group hover:bg-white/20`}
+                     >
+                       <MapPin className="w-5 h-5 group-hover:animate-bounce" />
+                     </Button>
+                   </TooltipTrigger>
+                   <TooltipContent>
+                     <p>Use Current Location</p>
+                   </TooltipContent>
+                 </Tooltip>
+                 
+                 <Tooltip>
+                   <TooltipTrigger asChild>
+                     <Button 
+                       variant="ghost"
+                       size="icon"
+                       onClick={() => setSettingsOpen(true)} 
+                       className={`w-10 h-10 ${glassClass} rounded-full transition-all active:scale-95 group hover:bg-white/20`}
+                     >
+                       <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+                     </Button>
+                   </TooltipTrigger>
+                   <TooltipContent>
+                     <p>Settings</p>
+                   </TooltipContent>
+                 </Tooltip>
+               </div>
+             </TooltipProvider>
           </div>
         </header>
 
         {error && (
-          <div className="animate-fade-in bg-red-500/20 border border-red-500/20 p-4 rounded-2xl mb-8 flex items-center justify-center space-x-2 backdrop-blur-md">
-            <AlertTriangle className="w-5 h-5" />
-            <span>{error}</span>
-          </div>
+          <Alert variant="destructive" className="animate-fade-in mb-8 backdrop-blur-md bg-red-500/10 border-red-500/20">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         {weather && !loading ? (
@@ -227,14 +253,12 @@ const App: React.FC = () => {
 
               {/* Right Column */}
               <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
-                <div className={`${glassClass} rounded-[2.5rem] p-6 overflow-hidden`}>
-                  <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
-                </div>
+                <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
                 
                 <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                  <div className="w-full aspect-square md:aspect-video xl:aspect-auto h-full min-h-[350px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
+                  <div className="w-full aspect-square md:aspect-video xl:aspect-auto h-full min-h-[350px]">
                     <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
                   </div>
                   {weather.current.airQuality && (
@@ -244,21 +268,26 @@ const App: React.FC = () => {
                   )}
                 </div>
 
-                <div className={`${glassClass} rounded-[2.5rem] p-6 h-[350px]`}>
+                <div className="h-[350px]">
                   <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
                 </div>
               </div>
             </div>
           </>
         ) : (
-          <div className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6 animate-pulse">
-            <div className="relative">
-               <div className="absolute inset-0 bg-white/20 blur-xl rounded-full"></div>
-               <CloudLightning className="w-16 h-16 relative z-10" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+              <Skeleton className="h-[400px] w-full rounded-[2.5rem] bg-white/5" />
+              <Skeleton className="h-[500px] w-full rounded-[2.5rem] bg-white/5" />
             </div>
-            <div className="space-y-2">
-               <h3 className="text-2xl font-light">Loading Atmosphere</h3>
-               <p className="text-sm opacity-60">Connecting to satellite array...</p>
+            <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
+              <Skeleton className="h-[200px] w-full rounded-[2.5rem] bg-white/5" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[...Array(8)].map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full rounded-3xl bg-white/5" />
+                ))}
+              </div>
+              <Skeleton className="h-[400px] w-full rounded-[2.5rem] bg-white/5" />
             </div>
           </div>
         )}

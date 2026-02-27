@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Map, Wind, Droplets, Thermometer, Cloud, Radio } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface WeatherMapProps {
   lat: number;
@@ -25,12 +27,8 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit, theme })
   const metricTemp = unit === 'metric' ? '°C' : '°F';
   const metricWind = unit === 'metric' ? 'km/h' : 'mph';
 
-  const containerClass = isDark 
-    ? 'bg-black/20 backdrop-blur-3xl border border-white/10 shadow-2xl' 
-    : 'bg-white/60 backdrop-blur-3xl border border-white/40 shadow-xl';
-
   return (
-    <div className={`${containerClass} rounded-[2.5rem] overflow-hidden relative h-[600px] flex flex-col group transition-colors duration-500`}>
+    <Card className={`rounded-[2.5rem] overflow-hidden relative h-[600px] flex flex-col group transition-colors duration-500 backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
       {/* Header & Controls */}
       <div className={`absolute top-0 left-0 w-full p-6 z-10 pointer-events-none flex flex-col gap-4 pb-12 transition-opacity ${isDark ? 'bg-gradient-to-b from-black/80 via-black/40 to-transparent' : 'bg-gradient-to-b from-white/80 via-white/40 to-transparent'}`}>
         <div className={`flex items-center ${isDark ? 'opacity-90 text-white' : 'text-slate-800'}`}>
@@ -41,14 +39,16 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit, theme })
         {/* Layer Switcher */}
         <div className="flex flex-wrap gap-2 pointer-events-auto">
           {overlays.map((layer) => (
-            <button
+            <Button
               key={layer.id}
+              variant={overlay === layer.id ? "default" : "secondary"}
+              size="sm"
               onClick={() => setOverlay(layer.id as OverlayType)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all backdrop-blur-md border ${
+              className={`rounded-full text-[10px] font-bold uppercase tracking-wider transition-all backdrop-blur-md ${
                 overlay === layer.id 
                   ? isDark 
-                    ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)]' 
-                    : 'bg-slate-800 text-white border-slate-800 shadow-lg'
+                    ? 'bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.4)]' 
+                    : 'bg-slate-800 text-white hover:bg-slate-700 shadow-lg'
                   : isDark
                     ? 'bg-black/50 text-white/80 border-white/10 hover:bg-white/20 hover:text-white'
                     : 'bg-white/50 text-slate-700 border-white/40 hover:bg-white/80 hover:text-slate-900'
@@ -56,7 +56,7 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit, theme })
             >
               {layer.icon}
               {layer.name}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -76,6 +76,6 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit, theme })
           className="w-full h-full grayscale-[0.1] contrast-125 relative z-10"
         ></iframe>
       </div>
-    </div>
+    </Card>
   );
 };

@@ -3,6 +3,7 @@ import React from 'react';
 import { ComposedChart, Area, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
 import { HourlyForecast } from '../types';
 import { UtilityIcon } from '../icons';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface ForecastChartProps {
   data: HourlyForecast[];
@@ -98,27 +99,29 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit, theme 
   const minTemp = Math.min(...chartData.map(d => d.temp));
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className={`flex items-center justify-between mb-4 px-2 ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
-         <div className="flex items-center">
-            <div className="w-4 h-4 mr-2">
-               <UtilityIcon type="averages" />
-            </div>
-            <h3 className="text-sm font-medium uppercase tracking-wider">Temperature & Precipitation</h3>
-         </div>
-         <div className="flex items-center gap-3 text-xs font-medium">
-             <div className="flex items-center gap-1">
-                 <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-white' : 'bg-slate-800'}`}></div>
-                 <span>Temp</span>
-             </div>
-             <div className="flex items-center gap-1">
-                 <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                 <span>Rain %</span>
-             </div>
-         </div>
-      </div>
+    <Card className={`rounded-[2.5rem] backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg h-full flex flex-col ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
+      <CardHeader className="pb-2">
+        <div className={`flex items-center justify-between ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
+           <CardTitle className="flex items-center text-sm font-medium uppercase tracking-wider">
+              <div className="w-4 h-4 mr-2">
+                 <UtilityIcon type="averages" />
+              </div>
+              Temperature & Precipitation
+           </CardTitle>
+           <div className="flex items-center gap-3 text-xs font-medium">
+               <div className="flex items-center gap-1">
+                   <div className={`w-2 h-2 rounded-full ${isDark ? 'bg-white' : 'bg-slate-800'}`}></div>
+                   <span>Temp</span>
+               </div>
+               <div className="flex items-center gap-1">
+                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                   <span>Rain %</span>
+               </div>
+           </div>
+        </div>
+      </CardHeader>
       
-      <div className="flex-1 w-full min-h-0">
+      <CardContent className="flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
             <defs>
@@ -175,7 +178,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit, theme 
             />
           </ComposedChart>
         </ResponsiveContainer>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

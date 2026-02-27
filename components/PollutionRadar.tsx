@@ -2,6 +2,7 @@
 import React from 'react';
 import { AirQualityData } from '../types';
 import { PollutantIcon } from '../icons';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface PollutionRadarProps {
   data?: AirQualityData;
@@ -79,63 +80,49 @@ export const PollutionRadar: React.FC<PollutionRadarProps> = ({ data, aqi, theme
     return "Health warning of emergency conditions: everyone is more likely to be affected.";
   };
 
-  const containerClass = isDark 
-    ? 'bg-black/20 backdrop-blur-3xl border border-white/10 shadow-2xl' 
-    : 'bg-white/60 backdrop-blur-3xl border border-white/40 shadow-xl';
+  const getAQIInfo = (aqi: number) => {
+    if (aqi <= 50) return { color: 'text-emerald-400', label: 'Good' };
+    if (aqi <= 100) return { color: 'text-yellow-400', label: 'Moderate' };
+    if (aqi <= 150) return { color: 'text-orange-400', label: 'Unhealthy for Sensitive Groups' };
+    if (aqi <= 200) return { color: 'text-red-400', label: 'Unhealthy' };
+    if (aqi <= 300) return { color: 'text-purple-400', label: 'Very Unhealthy' };
+    return { color: 'text-rose-400', label: 'Hazardous' };
+  };
 
   return (
-    <div className={`${containerClass} rounded-[2.5rem] p-6 transition-colors duration-500`}>
-      <div className={`flex flex-col md:flex-row md:items-center justify-between mb-6 px-2 gap-4 ${isDark ? 'text-white' : 'text-slate-800'}`}>
-         <div className={`flex items-center ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
-            <div className="w-4 h-4 mr-2">
-               <PollutantIcon type="shield" />
-            </div>
-            <h3 className="text-sm font-medium uppercase tracking-wider">Air Quality</h3>
-         </div>
-         {aqi && (
-           <div className={`flex items-center gap-3 px-4 py-2 rounded-full border ${isDark ? 'bg-black/20 border-white/5' : 'bg-white/50 border-white/20'}`}>
-             <div className="text-sm font-medium">AQI: {aqi}</div>
-             <div className="w-24 h-1.5 rounded-full bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 relative">
-                <div className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-sm ${isDark ? 'border-black/50' : 'border-slate-300'}`} style={{ left: `${Math.min((aqi / 300) * 100, 100)}%` }} />
-             </div>
-           </div>
-         )}
-      </div>
-
-      {aqi && (
-        <div className="px-2 mb-6">
-          <p className={`text-sm opacity-80 leading-relaxed border-l-2 pl-3 ${isDark ? 'border-white/20 text-white' : 'border-slate-300 text-slate-700'}`}>
-            {getHealthAdvice(aqi)}
-          </p>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-2">
-        {/* Left: Pollutants */}
-        <div>
-           <div className={`flex items-center gap-2 mb-4 ${isDark ? 'opacity-70 text-white' : 'text-slate-600'}`}>
-              <span className="text-sm font-medium">Pollutants</span>
-           </div>
-           
-           <PollutantBar label="PM 2.5" value={data.pm2_5} max={35} unit="µg/m³" isDark={isDark} />
-           <PollutantBar label="PM 10" value={data.pm10} max={50} unit="µg/m³" isDark={isDark} />
-           <PollutantBar label="NO₂" value={data.no2} max={40} unit="µg/m³" isDark={isDark} />
-           <PollutantBar label="O₃" value={data.o3} max={100} unit="µg/m³" isDark={isDark} />
-        </div>
-
-        {/* Right: Pollen */}
-        <div>
-           <div className={`flex items-center gap-2 mb-4 ${isDark ? 'opacity-70 text-white' : 'text-slate-600'}`}>
-              <span className="text-sm font-medium">Pollen</span>
-           </div>
-           
-           <div className="grid grid-cols-3 gap-3">
+    <Card className={`h-full backdrop-blur-2xl bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
+      <CardHeader>
+        <CardTitle className={`text-sm font-medium flex items-center ${isDark ? 'text-white/70' : 'text-slate-500'}`}>
+          <PollutantIcon type="shield" className="w-4 h-4 mr-2" />
+          Air Quality
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {aqi && (
+          <div className="text-center mb-4">
+            <div className={`text-5xl font-bold ${getAQIInfo(aqi).color}`}>{aqi}</div>
+            <div className={`text-md font-medium ${getAQIInfo(aqi).color}`}>{getAQIInfo(aqi).label}</div>
+            <p className={`text-xs mt-2 ${isDark ? 'text-white/50' : 'text-slate-500'}`}>{getHealthAdvice(aqi)}</p>
+          </div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-white/70' : 'text-slate-500'}`}>Pollutants</h4>
+            <PollutantBar label="PM 2.5" value={data.pm2_5} max={35} unit="µg/m³" isDark={isDark} />
+            <PollutantBar label="PM 10" value={data.pm10} max={50} unit="µg/m³" isDark={isDark} />
+            <PollutantBar label="NO₂" value={data.no2} max={40} unit="µg/m³" isDark={isDark} />
+            <PollutantBar label="O₃" value={data.o3} max={100} unit="µg/m³" isDark={isDark} />
+          </div>
+          <div>
+            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-white/70' : 'text-slate-500'}`}>Pollen</h4>
+            <div className="grid grid-cols-3 gap-2">
               <PollenItem label="Grass" count={data.pollen.grass} icon={<PollutantIcon type="sprout" />} isDark={isDark} />
               <PollenItem label="Tree" count={data.pollen.tree} icon={<PollutantIcon type="leaf" />} isDark={isDark} />
               <PollenItem label="Weed" count={data.pollen.weed} icon={<PollutantIcon type="flower" />} isDark={isDark} />
-           </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

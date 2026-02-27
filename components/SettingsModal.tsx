@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { UserSettings } from '../types';
-import { X, Save, Thermometer, Moon, Sun } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Moon, Sun, Thermometer, Ruler } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -10,125 +15,84 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, settings, onSave }) => {
-  const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
+  const [currentSettings, setCurrentSettings] = useState(settings);
 
   useEffect(() => {
-    setLocalSettings(settings);
-  }, [settings]);
-
-  if (!isOpen) return null;
+    setCurrentSettings(settings);
+  }, [settings, isOpen]);
 
   const handleSave = () => {
-    onSave(localSettings);
+    onSave(currentSettings);
     onClose();
   };
 
-  const isDark = localSettings.theme === 'dark';
-
-  const modalBg = isDark ? 'bg-slate-900/90 border-white/10' : 'bg-white/90 border-slate-200';
-  const textPrimary = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-gray-400' : 'text-slate-500';
-  const sectionBg = isDark ? 'bg-black/20 border-white/5' : 'bg-slate-100 border-slate-200';
-  const infoBg = isDark ? 'bg-white/5 border-white/5' : 'bg-blue-50 border-blue-100';
+  const isDark = currentSettings.theme === 'dark';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-      <div className={`${modalBg} backdrop-blur-xl rounded-3xl w-full max-w-md border shadow-2xl overflow-hidden transform transition-all scale-100`}>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className={`text-2xl font-bold tracking-tight ${textPrimary}`}>Preferences</h2>
-            <button onClick={onClose} className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-gray-400 hover:text-white' : 'hover:bg-slate-100 text-slate-400 hover:text-slate-700'}`}>
-              <X className="w-5 h-5" />
-            </button>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className={`backdrop-blur-2xl border-white/10 ${isDark ? 'bg-black/60 text-white' : 'bg-white/90 text-slate-900 border-slate-200'}`}>
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-serif">Preferences</DialogTitle>
+          <DialogDescription className={isDark ? 'text-white/50' : 'text-slate-500'}>
+            Customize your SkyCast experience.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="grid gap-8 py-6">
+          {/* Units Selection */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium opacity-70">
+              <Ruler className="w-4 h-4" />
+              <span>Measurement Units</span>
+            </div>
+            <Tabs 
+              value={currentSettings.units} 
+              onValueChange={(v) => setCurrentSettings({...currentSettings, units: v as 'metric' | 'imperial'})}
+              className="w-full"
+            >
+              <TabsList className={`grid w-full grid-cols-2 ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                <TabsTrigger value="metric" className="flex items-center gap-2">
+                  <Thermometer className="w-3.5 h-3.5" />
+                  Metric (°C)
+                </TabsTrigger>
+                <TabsTrigger value="imperial" className="flex items-center gap-2">
+                  <Thermometer className="w-3.5 h-3.5" />
+                  Imperial (°F)
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
-          <div className="space-y-8">
-            
-            {/* Theme Selection */}
-            <div>
-               <label className={`block text-sm font-medium mb-3 flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
-                 {localSettings.theme === 'dark' ? <Moon className="w-4 h-4 text-purple-400" /> : <Sun className="w-4 h-4 text-yellow-500" />}
-                 Appearance
-               </label>
-               <div className={`grid grid-cols-2 gap-3 p-1 rounded-2xl border ${sectionBg}`}>
-                 <button
-                   onClick={() => setLocalSettings({ ...localSettings, theme: 'light' })}
-                   className={`flex items-center justify-center gap-2 p-3 rounded-xl text-sm font-medium transition-all ${
-                     localSettings.theme === 'light'
-                       ? 'bg-white text-slate-900 shadow-lg'
-                       : `${textSecondary} hover:bg-white/5`
-                   }`}
-                 >
-                   <Sun className="w-4 h-4" />
-                   Light
-                 </button>
-                 <button
-                   onClick={() => setLocalSettings({ ...localSettings, theme: 'dark' })}
-                   className={`flex items-center justify-center gap-2 p-3 rounded-xl text-sm font-medium transition-all ${
-                     localSettings.theme === 'dark'
-                       ? 'bg-slate-700 text-white shadow-lg ring-1 ring-white/10'
-                       : `${textSecondary} hover:bg-white/5`
-                   }`}
-                 >
-                   <Moon className="w-4 h-4" />
-                   Dark
-                 </button>
-               </div>
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between p-4 rounded-2xl border border-white/5 bg-white/5">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2 font-medium">
+                {isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                <span>Dark Mode</span>
+              </div>
+              <span className="text-xs opacity-50">Switch between light and dark themes.</span>
             </div>
-
-            {/* Unit Selection */}
-            <div>
-               <label className={`block text-sm font-medium mb-3 flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-slate-600'}`}>
-                 <Thermometer className="w-4 h-4 text-blue-400" />
-                 Units
-               </label>
-               <div className={`grid grid-cols-2 gap-3 p-1 rounded-2xl border ${sectionBg}`}>
-                 <button
-                   onClick={() => setLocalSettings({ ...localSettings, units: 'metric' })}
-                   className={`p-3 rounded-xl text-sm font-medium transition-all ${
-                     localSettings.units === 'metric'
-                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                       : `${textSecondary} hover:bg-white/5`
-                   }`}
-                 >
-                   Metric (°C, km/h)
-                 </button>
-                 <button
-                   onClick={() => setLocalSettings({ ...localSettings, units: 'imperial' })}
-                   className={`p-3 rounded-xl text-sm font-medium transition-all ${
-                     localSettings.units === 'imperial'
-                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                       : `${textSecondary} hover:bg-white/5`
-                   }`}
-                 >
-                   Imperial (°F, mph)
-                 </button>
-               </div>
-            </div>
-
-            {/* Info Section */}
-            <div className={`p-4 rounded-2xl border ${infoBg}`}>
-               <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <h4 className={`font-semibold text-xs uppercase tracking-wider ${isDark ? 'text-gray-200' : 'text-slate-700'}`}>System Status</h4>
-               </div>
-               <p className={`text-xs leading-relaxed ${textSecondary}`}>
-                 SkyCast AI is operating in <strong>Smart Ensemble Mode</strong>. We fuse data from multiple providers to ensure maximum accuracy.
-               </p>
-            </div>
+            <Switch 
+              checked={isDark}
+              onCheckedChange={(checked) => setCurrentSettings({...currentSettings, theme: checked ? 'dark' : 'light'})}
+            />
           </div>
         </div>
 
-        <div className={`p-6 border-t flex justify-end ${isDark ? 'bg-black/20 border-white/5' : 'bg-slate-50 border-slate-200'}`}>
-          <button
+        <DialogFooter className="gap-2 sm:gap-0">
+          <DialogClose asChild>
+            <Button variant="ghost" className={isDark ? 'hover:bg-white/5' : 'hover:bg-slate-100'}>
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button 
             onClick={handleSave}
-            className={`flex items-center space-x-2 px-8 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+            className="bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20"
           >
-            <Save className="w-4 h-4" />
-            <span>Save Changes</span>
-          </button>
-        </div>
-      </div>
-    </div>
+            Apply Changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
