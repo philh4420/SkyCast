@@ -11,6 +11,7 @@ import { HourlyForecastStrip } from './components/HourlyForecastStrip';
 import { PollutionRadar } from './components/PollutionRadar';
 import { SettingsModal } from './components/SettingsModal';
 import { WeatherMap } from './components/WeatherMap';
+import { WeatherDetailsGrid } from './components/WeatherDetailsGrid';
 import { AlertsBanner } from './components/AlertsBanner';
 import { Search, MapPin, Settings, AlertTriangle, CloudLightning, CloudSun } from 'lucide-react';
 
@@ -115,8 +116,10 @@ const App: React.FC = () => {
 
   const bgGradient = getAtmosphere(weather?.current.iconCode || '');
   const textColor = weather?.current.iconCode.includes('snow') && !weather?.current.iconCode.includes('night') ? 'text-slate-900' : 'text-white';
-  const glassClass = 'bg-black/20 backdrop-blur-3xl border border-white/10 shadow-2xl';
-  const inputClass = 'bg-black/20 border-white/10 text-white placeholder-white/50 focus:bg-black/30 focus:border-white/30';
+  
+  // Premium Glass Effect
+  const glassClass = 'bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:bg-white/15 transition-colors duration-500';
+  const inputClass = 'bg-white/10 border-white/10 text-white placeholder-white/50 focus:bg-white/20 focus:border-white/30 backdrop-blur-md';
 
   return (
     <div className={`min-h-screen ${textColor} font-sans relative overflow-x-hidden selection:bg-white/30 bg-black`}>
@@ -134,7 +137,7 @@ const App: React.FC = () => {
       <div className={`fixed inset-0 z-0 ${bgGradient} mix-blend-multiply pointer-events-none opacity-80`}></div>
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay z-0" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
 
-      <div className="relative z-10 container mx-auto px-4 md:px-8 py-8 max-w-[1200px]">
+      <div className="relative z-10 container mx-auto px-4 md:px-8 py-8 max-w-[1600px]">
         
         {/* Header / Navbar */}
         <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
@@ -196,40 +199,57 @@ const App: React.FC = () => {
             {/* ALERTS */}
             {weather.alerts && <AlertsBanner alerts={weather.alerts} />}
 
-            {/* TOP ROW: CURRENT WEATHER DASHBOARD */}
-            <div className="w-full">
-               <CurrentWeather data={weather} unit={settings.units} />
-            </div>
-
             {/* CONTENT STACK */}
             <div className="flex flex-col gap-6">
-                   
-               {/* 2. HOURLY TIMELINE */}
-               <div className={`${glassClass} rounded-[2.5rem] p-6 overflow-hidden`}>
-                  <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} />
-               </div>
+              
+              {/* MAIN GRID */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                {/* LEFT COLUMN (Hero + Daily) - Spans 4 on LG, 3 on XL */}
+                <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+                  {/* HERO */}
+                  <div className="w-full">
+                    <CurrentWeather data={weather} unit={settings.units} />
+                  </div>
+                  
+                  {/* 10-DAY FORECAST */}
+                  <div className="w-full">
+                    <DailyForecastList data={weather.forecast} unit={settings.units} />
+                  </div>
+                </div>
 
-               {/* 4. 10-DAY FORECAST */}
-               <div className="w-full">
-                  <DailyForecastList data={weather.forecast} unit={settings.units} />
-               </div>
+                {/* RIGHT COLUMN (Details + Map + Charts) - Spans 8 on LG, 9 on XL */}
+                <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
+                  
+                  {/* HOURLY TIMELINE */}
+                  <div className={`${glassClass} rounded-[2.5rem] p-6 overflow-hidden`}>
+                    <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} />
+                  </div>
 
-               {/* INTERACTIVE MAP */}
-               <div className="w-full">
-                  <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} />
-               </div>
+                  {/* WEATHER DETAILS GRID */}
+                  <div className="w-full">
+                    <WeatherDetailsGrid data={weather} unit={settings.units} />
+                  </div>
 
-               {/* 3. POLLUTION RADAR (NEW) */}
-               {weather.current.airQuality && (
-                   <div className="w-full">
-                       <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} />
-                   </div>
-               )}
+                  {/* MAP & RADAR ROW */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                    <div className="w-full aspect-square md:aspect-video xl:aspect-auto h-full min-h-[350px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
+                      <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} />
+                    </div>
+                    {weather.current.airQuality && (
+                      <div className="w-full h-full min-h-[350px]">
+                        <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} />
+                      </div>
+                    )}
+                  </div>
 
-               {/* 5. CHART */}
-               <div className={`${glassClass} rounded-[2.5rem] p-6 h-[300px]`}>
-                  <ForecastChart data={weather.hourly} unit={settings.units} />
-               </div>
+                  {/* CHART */}
+                  <div className={`${glassClass} rounded-[2.5rem] p-6 h-[350px]`}>
+                    <ForecastChart data={weather.hourly} unit={settings.units} />
+                  </div>
+
+                </div>
+              </div>
 
             </div>
           </div>

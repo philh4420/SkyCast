@@ -19,7 +19,7 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
   const range = maxOfAll - minOfAll;
 
   return (
-    <div className="bg-black/20 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl">
+    <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl hover:bg-white/15 transition-colors duration-500">
       <div className="flex items-center mb-4 px-2 opacity-70">
          <CalendarDays className="w-4 h-4 mr-2" />
          <h3 className="text-sm font-medium uppercase tracking-wider">10-Day Forecast</h3>
