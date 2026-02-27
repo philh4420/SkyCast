@@ -42,7 +42,7 @@ const formatTime = (isoString: string) => {
 };
 
 // Helper to fetch with timeout
-const fetchWithTimeout = async (url: string, timeout = 8000) => {
+const fetchWithTimeout = async (url: string, timeout = 3500) => {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   try {
@@ -314,15 +314,19 @@ const fetch7Timer = async (lat: number, lon: number): Promise<PartialWeatherData
 // --- OpenWeatherMap ---
 const fetchOpenWeatherMap = async (lat: number, lon: number, apiKey: string): Promise<PartialWeatherData> => {
   const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
-  const res = await fetchWithTimeout(currentUrl);
+  const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+  const [res, forecastRes] = await Promise.all([
+    fetchWithTimeout(currentUrl),
+    fetchWithTimeout(forecastUrl)
+  ]);
+
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`OWM Failed: ${res.status} ${text}`);
   }
   const currentData = await res.json();
 
-  const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
-  const forecastRes = await fetchWithTimeout(forecastUrl);
   let forecast: DailyForecast[] = [];
   let hourly: HourlyForecast[] = [];
   
