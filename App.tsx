@@ -47,6 +47,15 @@ const App: React.FC = () => {
 
   // Theme Handling
   const isDark = settings.theme === 'dark';
+  
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
   const themeClass = isDark ? 'text-white' : 'text-slate-900';
   const bgClass = isDark ? 'bg-black' : 'bg-slate-100';
   
