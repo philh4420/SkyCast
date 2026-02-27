@@ -1,5 +1,5 @@
 
-import { WeatherData, DailyForecast, HourlyForecast, AirQualityData } from '../types';
+import { WeatherData, DailyForecast, HourlyForecast, AirQualityData, WeatherAlert } from '../types';
 import { WMO_CODE_MAP } from '../constants';
 
 interface PartialWeatherData {
@@ -56,6 +56,10 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
 
   if (!weatherRes.ok) throw new Error('Open-Meteo Failed');
   const data = await weatherRes.json();
+  
+  if (!data || !data.current || !data.daily || !data.hourly) {
+    throw new Error('Open-Meteo Invalid Data');
+  }
   
   let aqi = undefined;
   let airQuality: AirQualityData | undefined = undefined;
@@ -171,8 +175,8 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
     country: geoData.countryName || "",
     aqi,
     airQuality,
-    sunrise: formatTime(data.daily.sunrise[0]),
-    sunset: formatTime(data.daily.sunset[0]),
+    sunrise: formatTime(data.daily.sunrise?.[0] || ''),
+    sunset: formatTime(data.daily.sunset?.[0] || ''),
   };
 };
 
@@ -182,7 +186,11 @@ const fetch7Timer = async (lat: number, lon: number): Promise<PartialWeatherData
   if (!res.ok) throw new Error('7Timer Failed');
   const data = await res.json();
 
-  const initStr = data.init;
+  if (!data || !data.init || !data.dataseries) {
+    throw new Error('7Timer Invalid Data');
+  }
+
+  const initStr = data.init.toString();
   const initYear = parseInt(initStr.substring(0, 4));
   const initMonth = parseInt(initStr.substring(4, 6)) - 1;
   const initDay = parseInt(initStr.substring(6, 8));
@@ -505,7 +513,12 @@ export const getWeather = async (
     .filter(r => r.status === 'fulfilled')
     .map(r => (r as PromiseFulfilledResult<PartialWeatherData>).value);
 
+  const failedData = results
+    .filter(r => r.status === 'rejected')
+    .map(r => (r as PromiseRejectedResult).reason);
+
   if (successfulData.length === 0) {
+    console.error("All weather services failed. Errors:", failedData);
     throw new Error("All weather services failed.");
   }
 
