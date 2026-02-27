@@ -80,7 +80,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2 font-semibold text-lg">
                 {isDark ? <Moon className="w-5 h-5 text-blue-400" /> : <Sun className="w-5 h-5 text-orange-400" />}
-                <span>Dark Mode</span>
+                <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
               </div>
               <span className="text-sm text-muted-foreground">Switch between light and dark themes.</span>
             </div>
