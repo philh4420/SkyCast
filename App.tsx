@@ -60,6 +60,11 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    handleCurrentLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     fetchData(coords.lat, coords.lon);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coords]);

@@ -1,6 +1,6 @@
 
-import { WeatherData, DailyForecast, HourlyForecast, AirQualityData } from '../types.js';
-import { WMO_CODE_MAP } from '../constants.js';
+import { WeatherData, DailyForecast, HourlyForecast, AirQualityData } from '../types';
+import { WMO_CODE_MAP } from '../constants';
 
 interface PartialWeatherData {
   temp: number;
