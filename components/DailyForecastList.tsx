@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { DailyForecast } from '../types';
-import { WEATHER_ICONS } from '../icons';
-import { CalendarDays, Droplets, Umbrella, Wind, Sun, Moon, Sunrise, Sunset } from 'lucide-react';
+import { WeatherIcon } from '../icons';
+import { CalendarDays } from 'lucide-react';
 
 interface DailyForecastListProps {
   data: DailyForecast[];
@@ -29,7 +29,6 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
         {forecastData.map((day, idx) => {
           const date = new Date(day.date);
           const dayName = idx === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
-          const icon = WEATHER_ICONS[day.iconCode] || WEATHER_ICONS['cloudy'];
 
           const max = unit === 'metric' ? Math.round(day.tempMax) : Math.round(day.tempMax * 9/5 + 32);
           const min = unit === 'metric' ? Math.round(day.tempMin) : Math.round(day.tempMin * 9/5 + 32);
@@ -47,7 +46,9 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
               
               {/* Icon & Rain Chance */}
               <div className="flex flex-col items-center w-12">
-                 <div className="w-8 h-8 opacity-90 filter drop-shadow-md">{icon}</div>
+                 <div className="w-8 h-8 opacity-90 filter drop-shadow-md">
+                   <WeatherIcon code={day.iconCode} />
+                 </div>
                  {day.precipitationProb !== undefined && day.precipitationProb > 20 && (
                     <span className="text-[10px] font-bold text-blue-300 mt-0.5">{day.precipitationProb}%</span>
                  )}

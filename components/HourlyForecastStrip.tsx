@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { HourlyForecast } from '../types';
-import { WEATHER_ICONS } from '../icons';
-import { Clock, Navigation, Droplets, Umbrella, ThermometerSun, Sun, Sunrise, Sunset } from 'lucide-react';
+import { WeatherIcon } from '../icons';
+import { Clock } from 'lucide-react';
 
 interface HourlyForecastStripProps {
   data: HourlyForecast[];
@@ -11,7 +11,7 @@ interface HourlyForecastStripProps {
   sunset?: string;
 }
 
-export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, unit, sunrise, sunset }) => {
+export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, unit }) => {
   if (!data || data.length === 0) return null;
 
   return (
@@ -25,7 +25,6 @@ export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, 
         {data.slice(0, 24).map((hour, idx) => {
           const date = new Date(hour.time);
           const timeLabel = idx === 0 ? 'Now' : date.toLocaleTimeString([], { hour: 'numeric' });
-          const icon = WEATHER_ICONS[hour.iconCode] || WEATHER_ICONS['cloudy'];
           const temp = unit === 'metric' ? Math.round(hour.temp) : Math.round(hour.temp * 9/5 + 32);
           
           return (
@@ -39,7 +38,7 @@ export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, 
               {/* Icon & Rain */}
               <div className="flex flex-col items-center">
                 <div className="w-8 h-8 my-1 opacity-100 filter drop-shadow-md">
-                  {icon}
+                  <WeatherIcon code={hour.iconCode} />
                 </div>
                 {hour.precipProb > 20 && (
                   <span className="text-[11px] font-bold text-blue-300 mt-1">{Math.round(hour.precipProb)}%</span>
