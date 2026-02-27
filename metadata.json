@@ -1,0 +1,7 @@
+{
+  "name": "SkyCast",
+  "description": "A comprehensive weather dashboard integrating OpenWeatherMap , Open-Meteo, WeatherAPI and  7Timer! for weather insights and forecasting.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
