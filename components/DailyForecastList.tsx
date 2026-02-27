@@ -27,7 +27,7 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
   const barBg = isDark ? 'bg-black/20' : 'bg-slate-300/50';
 
   return (
-    <Card className={`rounded-[2.5rem] backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
+    <Card className={`rounded-[2.5rem] backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg h-full flex flex-col ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
       <CardHeader className="pb-2">
         <CardTitle className={`flex items-center text-sm font-medium uppercase tracking-wider ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
           <CalendarDays className="w-4 h-4 mr-2" />

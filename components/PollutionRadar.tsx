@@ -3,6 +3,7 @@ import React from 'react';
 import { AirQualityData } from '../types';
 import { PollutantIcon } from '../icons';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'motion/react';
 
 interface PollutionRadarProps {
   data?: AirQualityData;
@@ -10,59 +11,61 @@ interface PollutionRadarProps {
   theme: 'light' | 'dark';
 }
 
-const PollutantBar = ({ label, value, max, unit, isDark }: { label: string, value: number, max: number, unit: string, isDark: boolean }) => {
+const PollutantIndicator = ({ label, value, max, unit, isDark }: { label: string, value: number, max: number, unit: string, isDark: boolean }) => {
   const percentage = Math.min((value / max) * 100, 100);
-  let color = 'bg-emerald-400';
-  if (percentage > 40) color = 'bg-yellow-400';
-  if (percentage > 70) color = 'bg-orange-400';
-  if (percentage > 90) color = 'bg-red-500';
+  let colorClass = 'bg-emerald-500';
+  if (percentage > 40) colorClass = 'bg-yellow-500';
+  if (percentage > 70) colorClass = 'bg-orange-500';
+  if (percentage > 90) colorClass = 'bg-red-500';
 
   return (
-    <div className="mb-3 group">
-      <div className="flex justify-between items-end mb-1">
-        <span className={`text-[10px] font-bold uppercase tracking-wider opacity-70 ${isDark ? 'text-blue-200' : 'text-slate-500'}`}>{label}</span>
-        <span className={`text-xs font-mono opacity-90 ${isDark ? 'text-white' : 'text-slate-800'}`}>{value} <span className="text-[9px] opacity-50">{unit}</span></span>
+    <div className="flex flex-col gap-1.5">
+      <div className="flex justify-between items-end">
+        <span className={`text-[10px] font-bold uppercase tracking-widest opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>{label}</span>
+        <span className={`text-xs font-mono font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{value}<span className="text-[9px] font-normal opacity-40 ml-0.5">{unit}</span></span>
       </div>
-      <div className={`h-1.5 w-full rounded-full overflow-hidden ${isDark ? 'bg-white/5' : 'bg-slate-200'}`}>
-        <div 
-          className={`h-full rounded-full transition-all duration-1000 ${color}`} 
-          style={{ width: `${percentage}%` }}
+      <div className={`h-1 w-full rounded-full ${isDark ? 'bg-white/10' : 'bg-slate-200'} overflow-hidden`}>
+        <motion.div 
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className={`h-full rounded-full ${colorClass} shadow-[0_0_8px_rgba(0,0,0,0.2)]`}
         />
       </div>
     </div>
   );
 };
 
-const PollenItem = ({ label, count, icon, isDark }: { label: string, count: number, icon: React.ReactNode, isDark: boolean }) => {
+const PollenBadge = ({ label, count, icon, isDark }: { label: string, count: number, icon: React.ReactNode, isDark: boolean }) => {
   let status = 'Low';
-  let color = isDark 
-    ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20'
-    : 'text-emerald-700 bg-emerald-100 border-emerald-200';
+  let colorStyles = isDark 
+    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+    : 'bg-emerald-50/80 text-emerald-700 border-emerald-200';
   
   if (count > 20) { 
-    status = 'Moderate'; 
-    color = isDark 
-      ? 'text-yellow-300 bg-yellow-500/10 border-yellow-500/20'
-      : 'text-yellow-700 bg-yellow-100 border-yellow-200'; 
+    status = 'Mod'; 
+    colorStyles = isDark 
+      ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+      : 'bg-yellow-50/80 text-yellow-700 border-yellow-200'; 
   }
   if (count > 50) { 
     status = 'High'; 
-    color = isDark 
-      ? 'text-orange-300 bg-orange-500/10 border-orange-500/20'
-      : 'text-orange-700 bg-orange-100 border-orange-200'; 
+    colorStyles = isDark 
+      ? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+      : 'bg-orange-50/80 text-orange-700 border-orange-200'; 
   }
   if (count > 150) { 
-    status = 'Extreme'; 
-    color = isDark 
-      ? 'text-red-300 bg-red-500/10 border-red-500/20'
-      : 'text-red-700 bg-red-100 border-red-200'; 
+    status = 'Ext'; 
+    colorStyles = isDark 
+      ? 'bg-red-500/10 text-red-400 border-red-500/20'
+      : 'bg-red-50/80 text-red-700 border-red-200'; 
   }
 
   return (
-    <div className={`flex flex-col items-center p-3 rounded-2xl border ${color} backdrop-blur-sm transition-transform hover:scale-105`}>
-      <div className="mb-2 opacity-90 w-5 h-5">{icon}</div>
-      <span className="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-0.5">{label}</span>
-      <span className="text-sm font-bold">{status}</span>
+    <div className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border ${colorStyles} transition-all hover:scale-105 active:scale-95 cursor-default`}>
+      <div className="w-5 h-5 mb-1.5 drop-shadow-sm">{icon}</div>
+      <div className="text-[9px] font-black uppercase tracking-tighter opacity-60 leading-none mb-1">{label}</div>
+      <div className="text-[10px] font-bold leading-none">{status}</div>
     </div>
   );
 };
@@ -71,58 +74,93 @@ export const PollutionRadar: React.FC<PollutionRadarProps> = ({ data, aqi, theme
   if (!data) return null;
   const isDark = theme === 'dark';
 
-  const getHealthAdvice = (aqiVal: number) => {
-    if (aqiVal <= 50) return "Air quality is satisfactory, and air pollution poses little or no risk.";
-    if (aqiVal <= 100) return "Air quality is acceptable. However, there may be a risk for some people, particularly those who are unusually sensitive to air pollution.";
-    if (aqiVal <= 150) return "Members of sensitive groups may experience health effects. The general public is less likely to be affected.";
-    if (aqiVal <= 200) return "Some members of the general public may experience health effects; members of sensitive groups may experience more serious health effects.";
-    if (aqiVal <= 300) return "Health alert: The risk of health effects is increased for everyone.";
-    return "Health warning of emergency conditions: everyone is more likely to be affected.";
+  const getAQIConfig = (val: number) => {
+    if (val <= 50) return { color: '#10b981', label: 'Good', advice: 'Ideal for outdoor activities.' };
+    if (val <= 100) return { color: '#f59e0b', label: 'Moderate', advice: 'Sensitive groups should limit time outside.' };
+    if (val <= 150) return { color: '#f97316', label: 'Unhealthy+', advice: 'Limit prolonged outdoor exertion.' };
+    if (val <= 200) return { color: '#ef4444', label: 'Unhealthy', advice: 'Avoid outdoor activities if possible.' };
+    if (val <= 300) return { color: '#a855f7', label: 'Very Unhealthy', advice: 'Stay indoors with air filtration.' };
+    return { color: '#e11d48', label: 'Hazardous', advice: 'Health emergency. Stay indoors.' };
   };
 
-  const getAQIInfo = (aqi: number) => {
-    if (aqi <= 50) return { color: 'text-emerald-400', label: 'Good' };
-    if (aqi <= 100) return { color: 'text-yellow-400', label: 'Moderate' };
-    if (aqi <= 150) return { color: 'text-orange-400', label: 'Unhealthy for Sensitive Groups' };
-    if (aqi <= 200) return { color: 'text-red-400', label: 'Unhealthy' };
-    if (aqi <= 300) return { color: 'text-purple-400', label: 'Very Unhealthy' };
-    return { color: 'text-rose-400', label: 'Hazardous' };
-  };
+  const config = getAQIConfig(aqi || 0);
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - ((Math.min(aqi || 0, 300) / 300) * circumference);
 
   return (
-    <Card className={`h-full backdrop-blur-2xl bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
-      <CardHeader>
-        <CardTitle className={`text-sm font-medium flex items-center ${isDark ? 'text-white/70' : 'text-slate-500'}`}>
-          <PollutantIcon type="shield" className="w-4 h-4 mr-2" />
-          Air Quality
+    <Card className={`rounded-[2.5rem] overflow-hidden backdrop-blur-3xl border transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10 shadow-2xl' : 'bg-white/60 border-slate-200 shadow-xl'}`}>
+      <CardHeader className="pb-2">
+        <CardTitle className={`text-[10px] font-black uppercase tracking-[0.2em] flex items-center ${isDark ? 'text-white/40' : 'text-slate-400'}`}>
+          <PollutantIcon type="shield" className="w-3.5 h-3.5 mr-2" />
+          Air Quality Index
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        {aqi && (
-          <div className="text-center mb-4">
-            <div className={`text-5xl font-bold ${getAQIInfo(aqi).color}`}>{aqi}</div>
-            <div className={`text-md font-medium ${getAQIInfo(aqi).color}`}>{getAQIInfo(aqi).label}</div>
-            <p className={`text-xs mt-2 ${isDark ? 'text-white/50' : 'text-slate-500'}`}>{getHealthAdvice(aqi)}</p>
-          </div>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-white/70' : 'text-slate-500'}`}>Pollutants</h4>
-            <PollutantBar label="PM 2.5" value={data.pm2_5} max={35} unit="µg/m³" isDark={isDark} />
-            <PollutantBar label="PM 10" value={data.pm10} max={50} unit="µg/m³" isDark={isDark} />
-            <PollutantBar label="NO₂" value={data.no2} max={40} unit="µg/m³" isDark={isDark} />
-            <PollutantBar label="O₃" value={data.o3} max={100} unit="µg/m³" isDark={isDark} />
-          </div>
-          <div>
-            <h4 className={`text-xs font-medium mb-2 ${isDark ? 'text-white/70' : 'text-slate-500'}`}>Pollen</h4>
-            <div className="grid grid-cols-3 gap-2">
-              <PollenItem label="Grass" count={data.pollen.grass} icon={<PollutantIcon type="sprout" />} isDark={isDark} />
-              <PollenItem label="Tree" count={data.pollen.tree} icon={<PollutantIcon type="leaf" />} isDark={isDark} />
-              <PollenItem label="Weed" count={data.pollen.weed} icon={<PollutantIcon type="flower" />} isDark={isDark} />
+      
+      <CardContent className="flex flex-col gap-6 pt-2">
+        {/* AQI Circular Gauge */}
+        <div className="flex items-center gap-6">
+          <div className="relative w-24 h-24 flex items-center justify-center">
+            <svg className="w-full h-full -rotate-90 transform">
+              <circle
+                cx="48"
+                cy="48"
+                r={radius}
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                className={isDark ? 'text-white/5' : 'text-slate-100'}
+              />
+              <motion.circle
+                cx="48"
+                cy="48"
+                r={radius}
+                stroke={config.color}
+                strokeWidth="8"
+                fill="transparent"
+                strokeDasharray={circumference}
+                initial={{ strokeDashoffset: circumference }}
+                animate={{ strokeDashoffset }}
+                transition={{ duration: 2, ease: "easeOut" }}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={`text-2xl font-black tracking-tighter ${isDark ? 'text-white' : 'text-slate-900'}`}>{aqi}</span>
+              <span className="text-[8px] font-black uppercase tracking-widest opacity-40">AQI</span>
             </div>
+          </div>
+          
+          <div className="flex-1">
+            <div className="text-lg font-black tracking-tight mb-1" style={{ color: config.color }}>{config.label}</div>
+            <p className={`text-[11px] leading-relaxed font-medium ${isDark ? 'text-white/50' : 'text-slate-500'}`}>
+              {config.advice}
+            </p>
+          </div>
+        </div>
+
+        {/* Pollutants Grid */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3">
+            <PollutantIndicator label="PM 2.5" value={data.pm2_5} max={35} unit="µg/m³" isDark={isDark} />
+            <PollutantIndicator label="PM 10" value={data.pm10} max={50} unit="µg/m³" isDark={isDark} />
+            <PollutantIndicator label="NO₂" value={data.no2} max={40} unit="µg/m³" isDark={isDark} />
+          </div>
+
+          <div className={`p-4 rounded-3xl border ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
+             <div className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-3 flex items-center gap-2">
+                <PollutantIcon type="leaf" className="w-3 h-3" />
+                Pollen Levels
+             </div>
+             <div className="grid grid-cols-3 gap-2">
+                <PollenBadge label="Grass" count={data.pollen.grass} icon={<PollutantIcon type="sprout" />} isDark={isDark} />
+                <PollenBadge label="Tree" count={data.pollen.tree} icon={<PollutantIcon type="leaf" />} isDark={isDark} />
+                <PollenBadge label="Weed" count={data.pollen.weed} icon={<PollutantIcon type="flower" />} isDark={isDark} />
+             </div>
           </div>
         </div>
       </CardContent>
     </Card>
   );
 };
+

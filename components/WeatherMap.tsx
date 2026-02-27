@@ -28,7 +28,7 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({ lat, lon, unit, theme })
   const metricWind = unit === 'metric' ? 'km/h' : 'mph';
 
   return (
-    <Card className={`rounded-[2.5rem] overflow-hidden relative h-[600px] flex flex-col group transition-colors duration-500 backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
+    <Card className={`rounded-[2.5rem] overflow-hidden relative h-full flex flex-col group transition-colors duration-500 backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
       {/* Header & Controls */}
       <div className={`absolute top-0 left-0 w-full p-6 z-10 pointer-events-none flex flex-col gap-4 pb-12 transition-opacity ${isDark ? 'bg-gradient-to-b from-black/80 via-black/40 to-transparent' : 'bg-gradient-to-b from-white/80 via-white/40 to-transparent'}`}>
         <div className={`flex items-center ${isDark ? 'opacity-90 text-white' : 'text-slate-800'}`}>

@@ -252,34 +252,37 @@ const App: React.FC = () => {
           <>
             {weather.alerts && <AlertsBanner alerts={weather.alerts} theme={settings.theme} />}
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
-              {/* Left Column */}
-              <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
-                <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
-                <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
-              </div>
-
-              {/* Right Column */}
-              <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
-                <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
+            <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
-                <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
-
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                  <div className="w-full aspect-square md:aspect-video xl:aspect-auto h-full min-h-[350px]">
-                    <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
-                  </div>
+                {/* Left Column - Compact Sidebar */}
+                <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+                  <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
                   {weather.current.airQuality && (
-                    <div className="w-full h-full min-h-[350px]">
-                      <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
-                    </div>
+                    <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
                   )}
                 </div>
 
-                <div className="h-[350px]">
-                  <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
+                {/* Right Column - Main Stats */}
+                <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
+                  <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
+                  <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
                 </div>
+              </div>
+
+              {/* Full Width 50/50 Split Section */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div className="w-full h-full min-h-[500px]">
+                  <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
+                </div>
+                <div className="w-full h-full min-h-[500px]">
+                  <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
+                </div>
+              </div>
+
+              {/* Bottom Chart */}
+              <div className="h-[350px]">
+                <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
               </div>
             </div>
           </>
