@@ -2,7 +2,7 @@
 import React from 'react';
 import { ComposedChart, Area, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
 import { HourlyForecast } from '../types';
-import { Activity, CloudRain, Wind, Droplets } from 'lucide-react';
+import { UtilityIcon } from '../icons';
 
 interface ForecastChartProps {
   data: HourlyForecast[];
@@ -13,37 +13,48 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const d = payload[0].payload;
     return (
-      <div className="bg-slate-950/90 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl text-white min-w-[180px] z-50">
-        <p className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-2 border-b border-white/10 pb-1">{label}</p>
+      <div className="bg-black/40 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl text-white min-w-[200px] z-50 animate-fade-in">
+        <p className="text-xs font-bold uppercase tracking-wider text-white/70 mb-3 border-b border-white/10 pb-2">{label}</p>
         
-        <div className="flex items-center justify-between mb-3">
-            <span className="text-3xl font-bold tracking-tighter">{d.temp}°</span>
+        <div className="flex items-center justify-between mb-4">
+            <span className="text-4xl font-bold tracking-tighter">{d.temp}°</span>
             <div className="text-right">
-                <div className="text-[10px] font-medium opacity-60 uppercase">Feels Like</div>
-                <div className="text-sm font-semibold">{d.feelsLike}°</div>
+                <div className="text-[10px] font-medium opacity-60 uppercase mb-0.5">Feels Like</div>
+                <div className="flex items-center justify-end gap-1.5">
+                   <div className="w-3 h-3 opacity-80">
+                      <UtilityIcon type="feels-like" />
+                   </div>
+                   <div className="text-lg font-semibold">{d.feelsLike}°</div>
+                </div>
             </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2.5 bg-white/5 p-3 rounded-xl border border-white/5">
             <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5 opacity-70">
-                    <CloudRain className="w-3.5 h-3.5 text-blue-400" />
-                    <span>Precip</span>
+                <div className="flex items-center gap-2 opacity-70">
+                    <div className="w-3.5 h-3.5">
+                       <UtilityIcon type="rain" />
+                    </div>
+                    <span>Precipitation</span>
                 </div>
-                <span className="font-medium text-blue-100">{d.precip}%</span>
+                <span className="font-medium text-blue-200">{d.precip}%</span>
             </div>
             
             <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5 opacity-70">
-                    <Wind className="w-3.5 h-3.5 text-teal-400" />
+                <div className="flex items-center gap-2 opacity-70">
+                    <div className="w-3.5 h-3.5">
+                       <UtilityIcon type="wind" />
+                    </div>
                     <span>Wind</span>
                 </div>
                 <span className="font-medium">{d.windSpeed} <span className="text-[10px] opacity-50">{d.windUnit}</span></span>
             </div>
 
             <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5 opacity-70">
-                    <Droplets className="w-3.5 h-3.5 text-indigo-400" />
+                <div className="flex items-center gap-2 opacity-70">
+                    <div className="w-3.5 h-3.5">
+                       <UtilityIcon type="humidity" />
+                    </div>
                     <span>Humidity</span>
                 </div>
                 <span className="font-medium">{d.humidity}%</span>
@@ -51,7 +62,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         </div>
         
         {d.condition && (
-             <div className="mt-3 text-[10px] font-medium text-center bg-white/5 py-1 rounded-lg text-white/60">
+             <div className="mt-3 text-[10px] font-medium text-center bg-white/10 py-1.5 rounded-lg text-white/80 border border-white/5 uppercase tracking-wide">
                 {d.condition}
              </div>
         )}
@@ -83,7 +94,9 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({ data, unit }) => {
     <div className="w-full h-full flex flex-col">
       <div className="flex items-center justify-between mb-4 px-2 opacity-70">
          <div className="flex items-center">
-            <Activity className="w-4 h-4 mr-2" />
+            <div className="w-4 h-4 mr-2">
+               <UtilityIcon type="averages" />
+            </div>
             <h3 className="text-sm font-medium uppercase tracking-wider">Temperature & Precipitation</h3>
          </div>
          <div className="flex items-center gap-3 text-xs font-medium">
