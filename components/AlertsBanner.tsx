@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle, Info } from 'lucide-react';
-import { WeatherAlert } from '../api/_shared/types';
+import { WeatherAlert } from '../types';
 
 interface AlertsBannerProps {
   alerts: WeatherAlert[];

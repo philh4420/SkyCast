@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { WeatherData, UserSettings, GeoLocation } from './api/_shared/types';
-import { DEFAULT_LAT, DEFAULT_LON } from './api/_shared/constants';
+import { WeatherData, UserSettings, GeoLocation } from './types';
+import { DEFAULT_LAT, DEFAULT_LON } from './constants';
+import { getWeather } from './services/weatherService';
+import { getWeatherVideo } from './services/mediaService';
 import { CurrentWeather } from './components/CurrentWeather';
 import { ForecastChart } from './components/ForecastChart';
 import { DailyForecastList } from './components/DailyForecastList';
@@ -10,7 +12,7 @@ import { PollutionRadar } from './components/PollutionRadar';
 import { SettingsModal } from './components/SettingsModal';
 import { WeatherMap } from './components/WeatherMap';
 import { AlertsBanner } from './components/AlertsBanner';
-import { Search, MapPin, Settings, AlertTriangle, CloudLightning, Sparkles, CloudSun, Map } from 'lucide-react';
+import { Search, MapPin, Settings, AlertTriangle, CloudLightning, CloudSun } from 'lucide-react';
 
 const App: React.FC = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -39,34 +41,11 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-      const text = await res.text();
-      
-      if (!res.ok) {
-        let errorMsg = text || `Server Error: ${res.status}`;
-        try {
-          const errorData = JSON.parse(text);
-          errorMsg = errorData.details || errorData.error || errorMsg;
-        } catch (e) {
-          // Not JSON, stick with text
-        }
-        throw new Error(errorMsg);
-      }
-      
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error(`Invalid JSON from server: ${text.substring(0, 100)}`);
-      }
+      const data = await getWeather(lat, lon);
       setWeather(data);
 
-      fetch(`/api/media?condition=${encodeURIComponent(data.current.condition)}&iconCode=${encodeURIComponent(data.current.iconCode)}`)
-        .then(r => r.json())
-        .then(mediaData => {
-          if (mediaData.videoUrl) setVideoUrl(mediaData.videoUrl);
-        })
-        .catch(err => console.error('Media fetch error:', err));
+      const mediaData = await getWeatherVideo(data.current.condition, data.current.iconCode);
+      if (mediaData.videoUrl) setVideoUrl(mediaData.videoUrl);
 
     } catch (err: any) {
       console.error(err);

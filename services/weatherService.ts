@@ -41,6 +41,20 @@ const formatTime = (isoString: string) => {
   }
 };
 
+// Helper to fetch with timeout
+const fetchWithTimeout = async (url: string, timeout = 3500) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+};
+
 // --- Open-Meteo (Base + AQI) ---
 const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherData> => {
   // Added: forecast_days=10, daily wind/gusts, soil temp, precip sum
@@ -50,8 +64,8 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
   const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&timezone=auto`;
 
   const [weatherRes, aqiRes] = await Promise.all([
-    fetch(weatherUrl),
-    fetch(aqiUrl)
+    fetchWithTimeout(weatherUrl),
+    fetchWithTimeout(aqiUrl)
   ]);
 
   if (!weatherRes.ok) {
@@ -192,7 +206,7 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
 
 // --- 7Timer! (Free Fallback) ---
 const fetch7Timer = async (lat: number, lon: number): Promise<PartialWeatherData> => {
-  const res = await fetch(`https://www.7timer.info/bin/api.pl?lon=${lon}&lat=${lat}&product=civil&output=json`);
+  const res = await fetchWithTimeout(`https://www.7timer.info/bin/api.pl?lon=${lon}&lat=${lat}&product=civil&output=json`);
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`7Timer Failed: ${res.status} ${text}`);
@@ -300,15 +314,19 @@ const fetch7Timer = async (lat: number, lon: number): Promise<PartialWeatherData
 // --- OpenWeatherMap ---
 const fetchOpenWeatherMap = async (lat: number, lon: number, apiKey: string): Promise<PartialWeatherData> => {
   const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
-  const res = await fetch(currentUrl);
+  const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+  const [res, forecastRes] = await Promise.all([
+    fetchWithTimeout(currentUrl),
+    fetchWithTimeout(forecastUrl)
+  ]);
+
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`OWM Failed: ${res.status} ${text}`);
   }
   const currentData = await res.json();
 
-  const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
-  const forecastRes = await fetch(forecastUrl);
   let forecast: DailyForecast[] = [];
   let hourly: HourlyForecast[] = [];
   
@@ -401,7 +419,7 @@ const fetchOpenWeatherMap = async (lat: number, lon: number, apiKey: string): Pr
 const fetchWeatherAPI = async (lat: number, lon: number, apiKey: string): Promise<PartialWeatherData> => {
   // Try requesting 8 days, with alerts
   const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=8&aqi=yes&alerts=yes`;
-  const res = await fetch(url);
+  const res = await fetchWithTimeout(url);
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`WeatherAPI Failed: ${res.status} ${text}`);
@@ -516,8 +534,8 @@ export const getWeather = async (
   
   promises.push(fetch7Timer(lat, lon).then(d => { sources.push('7Timer!'); return d; }));
 
-  const owmApiKey = process.env.OWM_API_KEY || process.env.VITE_OWM_API_KEY;
-  const weatherApiKey = process.env.WEATHER_API_KEY || process.env.VITE_WEATHER_API_KEY;
+  const owmApiKey = import.meta.env.VITE_OWM_API_KEY;
+  const weatherApiKey = import.meta.env.VITE_WEATHER_API_KEY;
 
   if (owmApiKey) {
     promises.push(fetchOpenWeatherMap(lat, lon, owmApiKey).then(d => { sources.push('OpenWeatherMap'); return d; }));

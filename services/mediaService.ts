@@ -1,6 +1,6 @@
 
 const getApiKeys = () => {
-  const key = process.env.PEXELS_API_KEY || process.env.VITE_PEXELS_API_KEY;
+  const key = import.meta.env.VITE_PEXELS_API_KEY;
   return key ? [key] : [];
 };
 const BASE_URL = 'https://api.pexels.com/videos/search';
@@ -50,11 +50,12 @@ const getQuery = (condition: string, iconCode: string): string => {
   return isNight ? 'night sky stars' : 'beautiful sky landscape';
 };
 
-export const getWeatherVideo = async (condition: string, iconCode: string): Promise<string | null> => {
+export const getWeatherVideo = async (condition: string, iconCode: string): Promise<{ videoUrl: string | null }> => {
   const query = getQuery(condition, iconCode);
   const url = `${BASE_URL}?query=${encodeURIComponent(query)}&per_page=8&orientation=landscape&size=medium`;
 
   const keys = getApiKeys();
+  let videoUrl: string | null = null;
 
   for (const key of keys) {
     try {
@@ -74,7 +75,8 @@ export const getWeatherVideo = async (condition: string, iconCode: string): Prom
                            videoFiles.find((f: any) => f.height >= 540) || 
                            videoFiles[0];
                            
-          return bestFile.link;
+          videoUrl = bestFile.link;
+          break; // Found a video, break loop
         }
         break; // If request succeeded but no videos found, don't try other keys
       }
@@ -83,8 +85,12 @@ export const getWeatherVideo = async (condition: string, iconCode: string): Prom
     }
   }
   
-  console.warn("All Pexels API keys failed or blocked. Using fallback video.");
-  return getFallbackVideo(condition, iconCode);
+  if (!videoUrl) {
+    console.warn("All Pexels API keys failed or blocked. Using fallback video.");
+    videoUrl = getFallbackVideo(condition, iconCode);
+  }
+
+  return { videoUrl };
 };
 
 const getFallbackVideo = (condition: string, iconCode: string): string | null => {

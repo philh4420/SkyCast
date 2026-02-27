@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ComposedChart, Area, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
-import { HourlyForecast } from '../api/_shared/types';
+import { HourlyForecast } from '../types';
 import { Activity, CloudRain, Wind, Droplets } from 'lucide-react';
 
 interface ForecastChartProps {

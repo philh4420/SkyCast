@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserSettings } from '../api/_shared/types';
+import { UserSettings } from '../types';
 import { X, Save, Thermometer } from 'lucide-react';
 
 interface SettingsModalProps {
