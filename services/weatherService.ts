@@ -93,8 +93,15 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
   }
 
   // Geo
-  const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
-  const geoData = await geoRes.json();
+  let geoData: any = {};
+  try {
+    const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
+    if (geoRes.ok) {
+      geoData = await geoRes.json();
+    }
+  } catch (e) {
+    console.warn('Geocoding failed:', e);
+  }
 
   const currentCode = WMO_CODE_MAP[data.current.weather_code] || 'cloudy';
   const isDay = data.current.is_day === 1;
