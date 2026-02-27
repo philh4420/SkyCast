@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { HourlyForecast } from '../types';
-import { WEATHER_ICONS } from '../constants';
+import { WEATHER_ICONS } from '../icons';
 import { Clock, Navigation, Droplets, Umbrella, ThermometerSun, Sun, Sunrise, Sunset } from 'lucide-react';
 
 interface HourlyForecastStripProps {
