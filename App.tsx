@@ -40,8 +40,10 @@ const App: React.FC = () => {
     setError(null);
     try {
       const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-      if (!res.ok) throw new Error('Failed to fetch weather data');
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.details || data.error || 'Failed to fetch weather data');
+      }
       setWeather(data);
 
       fetch(`/api/media?condition=${encodeURIComponent(data.current.condition)}&iconCode=${encodeURIComponent(data.current.iconCode)}`)

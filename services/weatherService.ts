@@ -54,7 +54,10 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
     fetch(aqiUrl)
   ]);
 
-  if (!weatherRes.ok) throw new Error('Open-Meteo Failed');
+  if (!weatherRes.ok) {
+    const text = await weatherRes.text();
+    throw new Error(`Open-Meteo Failed: ${weatherRes.status} ${text}`);
+  }
   const data = await weatherRes.json();
   
   if (!data || !data.current || !data.daily || !data.hourly) {
@@ -183,7 +186,10 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
 // --- 7Timer! (Free Fallback) ---
 const fetch7Timer = async (lat: number, lon: number): Promise<PartialWeatherData> => {
   const res = await fetch(`https://www.7timer.info/bin/api.pl?lon=${lon}&lat=${lat}&product=civil&output=json`);
-  if (!res.ok) throw new Error('7Timer Failed');
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`7Timer Failed: ${res.status} ${text}`);
+  }
   const data = await res.json();
 
   if (!data || !data.init || !data.dataseries) {
@@ -288,7 +294,10 @@ const fetch7Timer = async (lat: number, lon: number): Promise<PartialWeatherData
 const fetchOpenWeatherMap = async (lat: number, lon: number, apiKey: string): Promise<PartialWeatherData> => {
   const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
   const res = await fetch(currentUrl);
-  if (!res.ok) throw new Error('OWM Failed');
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`OWM Failed: ${res.status} ${text}`);
+  }
   const currentData = await res.json();
 
   const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
@@ -386,7 +395,10 @@ const fetchWeatherAPI = async (lat: number, lon: number, apiKey: string): Promis
   // Try requesting 8 days, with alerts
   const url = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=8&aqi=yes&alerts=yes`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('WeatherAPI Failed');
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`WeatherAPI Failed: ${res.status} ${text}`);
+  }
   const data = await res.json();
 
   const mapCodeToIcon = (code: number, isDay: number) => {
@@ -497,8 +509,8 @@ export const getWeather = async (
   
   promises.push(fetch7Timer(lat, lon).then(d => { sources.push('7Timer!'); return d; }));
 
-  const owmApiKey = process.env.OWM_API_KEY;
-  const weatherApiKey = process.env.WEATHER_API_KEY;
+  const owmApiKey = process.env.OWM_API_KEY || process.env.VITE_OWM_API_KEY;
+  const weatherApiKey = process.env.WEATHER_API_KEY || process.env.VITE_WEATHER_API_KEY;
 
   if (owmApiKey) {
     promises.push(fetchOpenWeatherMap(lat, lon, owmApiKey).then(d => { sources.push('OpenWeatherMap'); return d; }));

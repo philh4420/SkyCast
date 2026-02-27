@@ -12,8 +12,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const data = await getWeather(lat, lon);
     res.status(200).json(data);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Weather API Error:', error);
-    res.status(500).json({ error: 'Failed to fetch weather data' });
+    res.status(500).json({ 
+      error: 'Failed to fetch weather data',
+      details: error.message || String(error)
+    });
   }
 }

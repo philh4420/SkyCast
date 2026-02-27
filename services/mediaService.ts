@@ -1,6 +1,6 @@
 
 const getApiKeys = () => {
-  const key = process.env.PEXELS_API_KEY;
+  const key = process.env.PEXELS_API_KEY || process.env.VITE_PEXELS_API_KEY;
   return key ? [key] : [];
 };
 const BASE_URL = 'https://api.pexels.com/videos/search';
