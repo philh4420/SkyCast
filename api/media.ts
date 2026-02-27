@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getWeatherVideo } from '../services/mediaService';
+import { getWeatherVideo } from './_shared/services/mediaService';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {

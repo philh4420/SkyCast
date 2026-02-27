@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HourlyForecast } from '../types';
+import { HourlyForecast } from '../api/_shared/types';
 import { WEATHER_ICONS } from '../icons';
 import { Clock, Navigation, Droplets, Umbrella, ThermometerSun, Sun, Sunrise, Sunset } from 'lucide-react';
 

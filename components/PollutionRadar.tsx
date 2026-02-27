@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AirQualityData } from '../types';
+import { AirQualityData } from '../api/_shared/types';
 import { Leaf, Sprout, Wind, ShieldCheck, AlertCircle, Flower } from 'lucide-react';
 
 interface PollutionRadarProps {

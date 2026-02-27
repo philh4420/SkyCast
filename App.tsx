@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { WeatherData, UserSettings, GeoLocation } from './types';
-import { DEFAULT_LAT, DEFAULT_LON } from './constants';
+import { WeatherData, UserSettings, GeoLocation } from './api/_shared/types';
+import { DEFAULT_LAT, DEFAULT_LON } from './api/_shared/constants';
 import { CurrentWeather } from './components/CurrentWeather';
 import { ForecastChart } from './components/ForecastChart';
 import { DailyForecastList } from './components/DailyForecastList';
@@ -40,25 +40,23 @@ const App: React.FC = () => {
     setError(null);
     try {
       const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      const text = await res.text();
       
       if (!res.ok) {
-        let errorMsg = 'Failed to fetch weather data';
+        let errorMsg = text || `Server Error: ${res.status}`;
         try {
-          const errorData = await res.json();
+          const errorData = JSON.parse(text);
           errorMsg = errorData.details || errorData.error || errorMsg;
         } catch (e) {
-          // If it's not JSON (like a Vercel 500 HTML page), just use the text or status
-          const text = await res.text();
-          errorMsg = text || `Server Error: ${res.status}`;
+          // Not JSON, stick with text
         }
         throw new Error(errorMsg);
       }
       
       let data;
       try {
-        data = await res.json();
+        data = JSON.parse(text);
       } catch (e) {
-        const text = await res.text();
         throw new Error(`Invalid JSON from server: ${text.substring(0, 100)}`);
       }
       setWeather(data);

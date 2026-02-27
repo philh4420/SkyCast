@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { WeatherData } from '../types';
+import { WeatherData } from '../api/_shared/types';
 import { MapPin, ArrowUp, ArrowDown, Activity, Wind, Cloud, Layers, Droplets, Sun, Eye, Gauge, Umbrella, Navigation, Sunrise, Sunset, Thermometer, Moon } from 'lucide-react';
 
 interface CurrentWeatherProps {

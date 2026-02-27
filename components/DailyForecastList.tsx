@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DailyForecast } from '../types';
+import { DailyForecast } from '../api/_shared/types';
 import { WEATHER_ICONS } from '../icons';
 import { CalendarDays, Droplets, Umbrella, Wind, Sun, Moon, Sunrise, Sunset } from 'lucide-react';
 

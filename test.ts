@@ -1,4 +1,4 @@
-import { getWeather } from './services/weatherService';
+import { getWeather } from './api/_shared/services/weatherService';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.example' });
