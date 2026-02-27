@@ -35,18 +35,21 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
   const isDark = theme === 'dark';
   
   // Basic Values
-  const temp = Math.round(current.temp);
-  const feelsLike = Math.round(current.feelsLike);
-  const gust = current.windGust ? Math.round(current.windGust) : null;
-
-  // Grid Stats Values
   const isMetric = unit === 'metric';
+  const convertTemp = (c: number) => isMetric ? Math.round(c) : Math.round(c * 9/5 + 32);
+
+  const temp = convertTemp(current.temp);
+  const feelsLike = convertTemp(current.feelsLike);
+  const gust = current.windGust ? (isMetric ? Math.round(current.windGust) : Math.round(current.windGust * 0.62)) : null;
   const windSpeedVal = isMetric ? Math.round(current.windSpeed) : Math.round(current.windSpeed * 0.62);
   const windUnit = isMetric ? 'km/h' : 'mph';
   const visVal = current.visibility ? (isMetric ? Math.round(current.visibility) : Math.round(current.visibility * 0.62)) : '-';
   const visUnit = isMetric ? 'km' : 'mi';
   const dewPointVal = current.dewPoint !== undefined ? (isMetric ? Math.round(current.dewPoint) : Math.round(current.dewPoint * 9/5 + 32)) : '-';
   const rainChance = forecast[0]?.precipitationProb ?? 0;
+  const precipVal = forecast[0]?.totalPrecip ?? 0;
+  const displayPrecip = isMetric ? precipVal : (precipVal / 25.4).toFixed(2);
+  const precipUnit = isMetric ? 'mm' : 'in';
 
   const getUVDesc = (uv: number) => {
     if (uv <= 2) return 'Low';
@@ -88,7 +91,7 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
 
         <DetailCard title="Rainfall" icon={<UtilityIcon type="rain" />} isDark={isDark}>
           <div className={`text-2xl font-bold ${textPrimary}`}>{rainChance}%</div>
-          <p className={`text-xs ${textSecondary}`}>{forecast[0]?.totalPrecip ?? 0} mm expected</p>
+          <p className={`text-xs ${textSecondary}`}>{displayPrecip} {precipUnit} expected</p>
         </DetailCard>
 
         <DetailCard title="Feels Like" icon={<UtilityIcon type="feels-like" />} isDark={isDark}>

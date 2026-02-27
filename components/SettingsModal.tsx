@@ -45,22 +45,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
               <Ruler className="w-4 h-4" />
               <span>Measurement Units</span>
             </div>
-            <Tabs 
-              value={currentSettings.units} 
-              onValueChange={(v) => setCurrentSettings({...currentSettings, units: v as 'metric' | 'imperial'})}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-muted/50 border border-white/5">
-                <TabsTrigger value="metric" className="flex items-center gap-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-300">
-                  <Thermometer className="w-4 h-4" />
-                  Metric (°C)
-                </TabsTrigger>
-                <TabsTrigger value="imperial" className="flex items-center gap-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-300">
-                  <Thermometer className="w-4 h-4" />
-                  Imperial (°F)
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted/30 rounded-2xl border border-white/5">
+              <Button
+                type="button"
+                variant={currentSettings.units === 'metric' ? 'default' : 'ghost'}
+                onClick={() => setCurrentSettings({ ...currentSettings, units: 'metric' })}
+                className={`flex items-center gap-2 h-11 rounded-xl transition-all duration-300 ${
+                  currentSettings.units === 'metric' 
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-md' 
+                    : 'hover:bg-muted/50'
+                }`}
+              >
+                <Thermometer className="w-4 h-4" />
+                Metric (°C)
+              </Button>
+              <Button
+                type="button"
+                variant={currentSettings.units === 'imperial' ? 'default' : 'ghost'}
+                onClick={() => setCurrentSettings({ ...currentSettings, units: 'imperial' })}
+                className={`flex items-center gap-2 h-11 rounded-xl transition-all duration-300 ${
+                  currentSettings.units === 'imperial' 
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-md' 
+                    : 'hover:bg-muted/50'
+                }`}
+              >
+                <Thermometer className="w-4 h-4" />
+                Imperial (°F)
+              </Button>
+            </div>
           </div>
  
           {/* Theme Toggle */}

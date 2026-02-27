@@ -12,9 +12,13 @@ export const CurrentWeather: React.FC<CurrentWeatherProps> = ({ data, unit, them
   const { current, location, forecast } = data;
   const isDark = theme === 'dark';
   
-  const temp = Math.round(current.temp);
-  const high = Math.round(forecast[0]?.tempMax ?? current.temp);
-  const low = Math.round(forecast[0]?.tempMin ?? current.temp);
+  const isMetric = unit === 'metric';
+  const convert = (c: number) => isMetric ? Math.round(c) : Math.round(c * 9/5 + 32);
+
+  const temp = convert(current.temp);
+  const high = convert(forecast[0]?.tempMax ?? current.temp);
+  const low = convert(forecast[0]?.tempMin ?? current.temp);
+  const unitLabel = isMetric ? '°C' : '°F';
 
   const textColor = isDark ? 'text-white' : 'text-slate-900';
   const subTextColor = isDark ? 'text-white/70' : 'text-slate-600';
@@ -31,6 +35,7 @@ export const CurrentWeather: React.FC<CurrentWeatherProps> = ({ data, unit, them
         <div className="relative flex items-center justify-center -my-4">
             <span className={`text-[9rem] md:text-[12rem] leading-none font-light tracking-tighter text-transparent bg-clip-text bg-gradient-to-b ${tempGradient} drop-shadow-2xl select-none`}>
                 {temp}°
+                <span className="text-4xl md:text-5xl align-top mt-12 md:mt-16 inline-block opacity-40">{isMetric ? 'C' : 'F'}</span>
             </span>
         </div>
         
