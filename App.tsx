@@ -152,7 +152,7 @@ const App: React.FC = () => {
       {/* Video Background - Only show if Dark Mode is active OR if user prefers it (could be another setting) */}
       {/* For now, we'll keep video background only in Dark Mode to ensure readability in Light Mode, or reduce opacity in Light Mode */}
       {videoUrl && (
-        <div className={`fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out ${isDark ? 'opacity-100' : 'opacity-20'}`}>
+        <div className={`fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out ${isDark ? 'opacity-100' : 'opacity-60'}`}>
            <video autoPlay loop muted playsInline className="w-full h-full object-cover scale-105 filter brightness-75 contrast-125" key={videoUrl}>
              <source src={videoUrl} type="video/mp4" />
            </video>
@@ -160,7 +160,7 @@ const App: React.FC = () => {
       )}
 
       {/* Overlays */}
-      <div className={`fixed inset-0 z-0 ${bgGradient} mix-blend-multiply pointer-events-none ${isDark ? 'opacity-80' : 'opacity-40'}`}></div>
+      <div className={`fixed inset-0 z-0 ${bgGradient} mix-blend-multiply pointer-events-none ${isDark ? 'opacity-80' : 'opacity-20'}`}></div>
       <div className={`fixed inset-0 pointer-events-none mix-blend-overlay z-0 ${isDark ? 'opacity-[0.03]' : 'opacity-[0.05]'}`} style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-8 py-8 max-w-[1600px]">
