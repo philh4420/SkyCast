@@ -474,9 +474,7 @@ const fetchWeatherAPI = async (lat: number, lon: number, apiKey: string): Promis
 
 export const getWeather = async (
   lat: number,
-  lon: number,
-  _providerIgnored: any, 
-  keys: { owmApiKey: string, weatherApiKey: string }
+  lon: number
 ): Promise<WeatherData> => {
   
   const sources: string[] = ['Open-Meteo'];
@@ -484,11 +482,14 @@ export const getWeather = async (
   
   promises.push(fetch7Timer(lat, lon).then(d => { sources.push('7Timer!'); return d; }));
 
-  if (keys.owmApiKey) {
-    promises.push(fetchOpenWeatherMap(lat, lon, keys.owmApiKey).then(d => { sources.push('OpenWeatherMap'); return d; }));
+  const owmApiKey = process.env.OWM_API_KEY;
+  const weatherApiKey = process.env.WEATHER_API_KEY;
+
+  if (owmApiKey) {
+    promises.push(fetchOpenWeatherMap(lat, lon, owmApiKey).then(d => { sources.push('OpenWeatherMap'); return d; }));
   }
-  if (keys.weatherApiKey) {
-    promises.push(fetchWeatherAPI(lat, lon, keys.weatherApiKey).then(d => { sources.push('WeatherAPI'); return d; }));
+  if (weatherApiKey) {
+    promises.push(fetchWeatherAPI(lat, lon, weatherApiKey).then(d => { sources.push('WeatherAPI'); return d; }));
   }
 
   const results = await Promise.allSettled(promises);

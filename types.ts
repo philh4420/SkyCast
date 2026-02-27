@@ -97,8 +97,6 @@ export enum WeatherProvider {
 }
 
 export interface UserSettings {
-  owmApiKey: string;
-  weatherApiKey: string;
   units: 'metric' | 'imperial';
 }
 

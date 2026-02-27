@@ -1,7 +1,8 @@
 
-const API_KEYS = [
-  'D0Kqdy5tQzcHAkgbtzozz9dCBWjVMdAeerONayDS0QoJRsz3EPrxZiJi'
-];
+const getApiKeys = () => {
+  const key = process.env.PEXELS_API_KEY;
+  return key ? [key] : [];
+};
 const BASE_URL = 'https://api.pexels.com/videos/search';
 
 // Mapping weather codes/descriptions to cinematic Pexels search queries
@@ -53,7 +54,9 @@ export const getWeatherVideo = async (condition: string, iconCode: string): Prom
   const query = getQuery(condition, iconCode);
   const url = `${BASE_URL}?query=${encodeURIComponent(query)}&per_page=8&orientation=landscape&size=medium`;
 
-  for (const key of API_KEYS) {
+  const keys = getApiKeys();
+
+  for (const key of keys) {
     try {
       const res = await fetch(url, {
         headers: { Authorization: key }

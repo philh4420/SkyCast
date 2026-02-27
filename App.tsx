@@ -1,7 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { getWeather } from './services/weatherService';
-import { getWeatherVideo } from './services/mediaService';
 import { WeatherData, UserSettings, GeoLocation } from './types';
 import { DEFAULT_LAT, DEFAULT_LON } from './constants';
 import { CurrentWeather } from './components/CurrentWeather';
@@ -25,8 +23,6 @@ const App: React.FC = () => {
   const [settings, setSettings] = useState<UserSettings>(() => {
     const saved = localStorage.getItem('skycast-settings');
     const defaultSettings: UserSettings = {
-      owmApiKey: '31895ab433268844337dd3ce24bf423c',
-      weatherApiKey: 'c4cd227ed7784f89a5e112230240504',
       units: 'metric'
     };
     if (saved) return { ...defaultSettings, ...JSON.parse(saved) };
@@ -43,15 +39,17 @@ const App: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getWeather(lat, lon, null as any, { 
-          owmApiKey: settings.owmApiKey, 
-          weatherApiKey: settings.weatherApiKey 
-        });
+      const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
+      if (!res.ok) throw new Error('Failed to fetch weather data');
+      const data = await res.json();
       setWeather(data);
 
-      getWeatherVideo(data.current.condition, data.current.iconCode).then(url => {
-         if (url) setVideoUrl(url);
-      });
+      fetch(`/api/media?condition=${encodeURIComponent(data.current.condition)}&iconCode=${encodeURIComponent(data.current.iconCode)}`)
+        .then(r => r.json())
+        .then(mediaData => {
+          if (mediaData.videoUrl) setVideoUrl(mediaData.videoUrl);
+        })
+        .catch(err => console.error('Media fetch error:', err));
 
     } catch (err: any) {
       console.error(err);
@@ -64,7 +62,7 @@ const App: React.FC = () => {
   useEffect(() => {
     fetchData(coords.lat, coords.lon);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coords, settings.owmApiKey, settings.weatherApiKey]);
+  }, [coords]);
 
   const handleLocationSearch = async (e: React.FormEvent) => {
     e.preventDefault();
