@@ -12,6 +12,7 @@ import { PollutionRadar } from './components/PollutionRadar';
 import { SettingsModal } from './components/SettingsModal';
 import { WeatherMap } from './components/WeatherMap';
 import { WeatherDetailsGrid } from './components/WeatherDetailsGrid';
+
 import { AlertsBanner } from './components/AlertsBanner';
 import { Search, MapPin, Settings, AlertTriangle, CloudLightning, CloudSun } from 'lucide-react';
 
@@ -46,11 +47,11 @@ const App: React.FC = () => {
   
   // Premium Glass Effect - Dynamic based on theme
   const glassClass = isDark 
-    ? 'bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:bg-white/15 transition-colors duration-500'
-    : 'bg-white/60 backdrop-blur-xl border border-white/40 shadow-xl hover:bg-white/80 transition-colors duration-500';
+    ? 'bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl'
+    : 'bg-white/60 backdrop-blur-2xl border border-white/40 shadow-xl';
     
   const inputClass = isDark
-    ? 'bg-white/10 border-white/10 text-white placeholder-white/50 focus:bg-white/20 focus:border-white/30 backdrop-blur-md'
+    ? 'bg-white/5 border-white/10 text-white placeholder-white/50 focus:bg-white/10 focus:border-white/20 backdrop-blur-md'
     : 'bg-white/60 border-white/20 text-slate-900 placeholder-slate-500 focus:bg-white/80 focus:border-blue-400 backdrop-blur-md shadow-sm';
 
   const fetchData = async (lat: number, lon: number) => {
@@ -143,14 +144,11 @@ const App: React.FC = () => {
 
   const bgGradient = getAtmosphere(weather?.current.iconCode || '');
   
-  // Override text color for specific conditions if needed, but generally stick to theme
   const finalTextColor = isDark ? 'text-white' : 'text-slate-900';
 
   return (
     <div className={`min-h-screen ${finalTextColor} font-sans relative overflow-x-hidden selection:bg-blue-500/30 ${bgClass}`}>
       
-      {/* Video Background - Only show if Dark Mode is active OR if user prefers it (could be another setting) */}
-      {/* For now, we'll keep video background only in Dark Mode to ensure readability in Light Mode, or reduce opacity in Light Mode */}
       {videoUrl && (
         <div className={`fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out ${isDark ? 'opacity-100' : 'opacity-60'}`}>
            <video autoPlay loop muted playsInline className="w-full h-full object-cover scale-105 filter brightness-75 contrast-125" key={videoUrl}>
@@ -159,31 +157,27 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Overlays */}
       <div className={`fixed inset-0 z-0 ${bgGradient} mix-blend-multiply pointer-events-none ${isDark ? 'opacity-80' : 'opacity-20'}`}></div>
       <div className={`fixed inset-0 pointer-events-none mix-blend-overlay z-0 ${isDark ? 'opacity-[0.03]' : 'opacity-[0.05]'}`} style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-8 py-8 max-w-[1600px]">
         
-        {/* Header / Navbar */}
         <header className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
           
-          {/* Brand Logo */}
           <div className="flex items-center gap-3 cursor-pointer group select-none" onClick={() => window.location.reload()}>
              <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-500">
                 <CloudSun className="w-6 h-6 text-white drop-shadow-md" />
                 <div className="absolute inset-0 rounded-xl ring-1 ring-white/20 inset-shadow pointer-events-none"></div>
              </div>
              <div className="flex flex-col">
-                <span className="text-xl font-semibold tracking-tight">SkyCast</span>
+                <span className="text-xl font-semibold tracking-tight font-serif">SkyCast</span>
              </div>
           </div>
 
-          {/* Search & Actions */}
           <div className="flex w-full md:w-auto items-center gap-3">
              <form onSubmit={handleLocationSearch} className="flex-1 md:w-80 relative group z-20">
                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="w-4 h-4 text-white/50 group-focus-within:text-white transition-colors" />
+                  <Search className={`w-4 h-4 transition-colors ${isDark ? 'text-white/50 group-focus-within:text-white' : 'text-slate-500 group-focus-within:text-slate-900'}`} />
                </div>
                <input 
                  type="text" 
@@ -196,7 +190,7 @@ const App: React.FC = () => {
 
              <button 
                onClick={handleCurrentLocation} 
-               className={`p-2.5 ${glassClass} rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all active:scale-95 group`}
+               className={`p-2.5 ${glassClass} rounded-full transition-all active:scale-95 group`}
                title="Use Current Location"
              >
                <MapPin className="w-5 h-5 group-hover:animate-bounce" />
@@ -204,7 +198,7 @@ const App: React.FC = () => {
              
              <button 
                onClick={() => setSettingsOpen(true)} 
-               className={`p-2.5 ${glassClass} rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all active:scale-95 group`}
+               className={`p-2.5 ${glassClass} rounded-full transition-all active:scale-95 group`}
                title="Settings"
              >
                <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
@@ -220,65 +214,42 @@ const App: React.FC = () => {
         )}
 
         {weather && !loading ? (
-          <div className="animate-fade-in pb-10 flex flex-col gap-6">
-            
-            {/* ALERTS */}
+          <>
             {weather.alerts && <AlertsBanner alerts={weather.alerts} theme={settings.theme} />}
 
-            {/* CONTENT STACK */}
-            <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
-              {/* MAIN GRID */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                {/* LEFT COLUMN (Hero + Daily) - Spans 4 on LG, 3 on XL */}
-                <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
-                  {/* HERO */}
-                  <div className="w-full">
-                    <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
-                  </div>
-                  
-                  {/* 10-DAY FORECAST */}
-                  <div className="w-full">
-                    <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
-                  </div>
-                </div>
-
-                {/* RIGHT COLUMN (Details + Map + Charts) - Spans 8 on LG, 9 on XL */}
-                <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
-                  
-                  {/* HOURLY TIMELINE */}
-                  <div className={`${glassClass} rounded-[2.5rem] p-6 overflow-hidden`}>
-                    <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
-                  </div>
-
-                  {/* WEATHER DETAILS GRID */}
-                  <div className="w-full">
-                    <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
-                  </div>
-
-                  {/* MAP & RADAR ROW */}
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <div className="w-full aspect-square md:aspect-video xl:aspect-auto h-full min-h-[350px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
-                      <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
-                    </div>
-                    {weather.current.airQuality && (
-                      <div className="w-full h-full min-h-[350px]">
-                        <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* CHART */}
-                  <div className={`${glassClass} rounded-[2.5rem] p-6 h-[350px]`}>
-                    <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
-                  </div>
-
-                </div>
+              {/* Left Column */}
+              <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+                <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
+                <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
               </div>
 
+              {/* Right Column */}
+              <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
+                <div className={`${glassClass} rounded-[2.5rem] p-6 overflow-hidden`}>
+                  <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
+                </div>
+                
+                <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  <div className="w-full aspect-square md:aspect-video xl:aspect-auto h-full min-h-[350px] rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10">
+                    <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
+                  </div>
+                  {weather.current.airQuality && (
+                    <div className="w-full h-full min-h-[350px]">
+                      <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
+                    </div>
+                  )}
+                </div>
+
+                <div className={`${glassClass} rounded-[2.5rem] p-6 h-[350px]`}>
+                  <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
+                </div>
+              </div>
             </div>
-          </div>
+          </>
         ) : (
           <div className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6 animate-pulse">
             <div className="relative">
@@ -293,7 +264,7 @@ const App: React.FC = () => {
         )}
 
         <SettingsModal 
-          isOpen={settingsOpen} 
+          isOpen={settingsOpen}
           onClose={() => setSettingsOpen(false)}
           settings={settings}
           onSave={setSettings}

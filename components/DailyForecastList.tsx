@@ -21,16 +21,16 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
   const range = maxOfAll - minOfAll;
 
   const containerClass = isDark 
-    ? 'bg-white/10 backdrop-blur-xl border border-white/10 shadow-2xl hover:bg-white/15' 
-    : 'bg-white/60 backdrop-blur-xl border border-white/40 shadow-xl hover:bg-white/80';
+    ? 'bg-white/5 border-white/10' 
+    : 'bg-white/50 border-slate-200/80';
     
   const textPrimary = isDark ? 'text-white' : 'text-slate-800';
   const textSecondary = isDark ? 'opacity-60' : 'text-slate-500';
-  const borderClass = isDark ? 'border-white/5' : 'border-slate-200/50';
-  const barBg = isDark ? 'bg-black/30' : 'bg-slate-300/50';
+  const borderClass = isDark ? 'border-white/10' : 'border-slate-200/60';
+  const barBg = isDark ? 'bg-black/20' : 'bg-slate-300/50';
 
   return (
-    <div className={`${containerClass} rounded-[2.5rem] p-6 transition-colors duration-500`}>
+    <div className={`${containerClass} rounded-3xl p-6 backdrop-blur-2xl border`}>
       <div className={`flex items-center mb-4 px-2 ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
          <CalendarDays className="w-4 h-4 mr-2" />
          <h3 className="text-sm font-medium uppercase tracking-wider">10-Day Forecast</h3>
@@ -50,12 +50,10 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
           return (
             <div key={idx} className={`flex items-center justify-between py-3 border-b last:border-0 px-2 group ${borderClass}`}>
               
-              {/* Day Name */}
-              <div className="w-16 text-lg font-medium">
+              <div className="w-16 text-base font-medium">
                  {dayName}
               </div>
               
-              {/* Icon & Rain Chance */}
               <div className="flex flex-col items-center w-12">
                  <div className="w-8 h-8 opacity-90 filter drop-shadow-md">
                    <WeatherIcon code={day.iconCode} />
@@ -65,9 +63,8 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
                  )}
               </div>
 
-              {/* Temperature Bar */}
               <div className="flex items-center flex-1 ml-4 gap-3">
-                 <span className={`text-lg font-medium w-8 text-right ${textSecondary}`}>{min}°</span>
+                 <span className={`text-base font-medium w-8 text-right ${textSecondary}`}>{min}°</span>
                  
                  <div className={`flex-1 h-1.5 rounded-full overflow-hidden relative ${barBg}`}>
                     <div 
@@ -76,7 +73,7 @@ export const DailyForecastList: React.FC<DailyForecastListProps> = ({ data, unit
                     />
                  </div>
 
-                 <span className="text-lg font-medium w-8">{max}°</span>
+                 <span className="text-base font-medium w-8">{max}°</span>
               </div>
 
             </div>

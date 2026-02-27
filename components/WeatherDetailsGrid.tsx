@@ -2,6 +2,7 @@ import React from 'react';
 import { WeatherData } from '../types';
 import { Navigation } from 'lucide-react';
 import { UtilityIcon } from '../icons';
+import { SunDial } from './SunDial';
 
 interface WeatherDetailsGridProps {
   data: WeatherData;
@@ -19,14 +20,14 @@ const getAQIInfo = (aqi: number) => {
 
 const BentoBox = ({ title, icon, children, className = "", isDark }: any) => {
   const containerClass = isDark 
-    ? 'bg-white/10 border-white/10 shadow-lg hover:bg-white/15 hover:border-white/20' 
+    ? 'bg-white/5 border-white/10 shadow-lg hover:bg-white/10 hover:border-white/15' 
     : 'bg-white/60 border-white/40 shadow-xl hover:bg-white/80 hover:border-white/60';
     
   const textPrimary = isDark ? 'text-white' : 'text-slate-800';
-  const textSecondary = isDark ? 'opacity-60' : 'text-slate-500';
+  const textSecondary = isDark ? 'opacity-70' : 'text-slate-500';
 
   return (
-    <div className={`group relative ${containerClass} border rounded-[2rem] p-5 flex flex-col backdrop-blur-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 ease-out aspect-square overflow-hidden ${className} ${textPrimary}`}>
+    <div className={`group relative ${containerClass} border rounded-3xl p-5 flex flex-col backdrop-blur-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 ease-out aspect-square overflow-hidden ${className} ${textPrimary}`}>
       {/* Subtle gradient overlay on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       
@@ -74,6 +75,19 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
         
+        {/* Sun Dial - New Component */}
+        <BentoBox title="Sun & Moon" icon={<UtilityIcon type="sunrise" />} isDark={isDark} className="col-span-2 md:col-span-1 xl:col-span-2 2xl:col-span-2">
+          {current.sunrise && current.sunset && current.moonrise && current.moonset && (
+            <SunDial 
+              sunrise={current.sunrise}
+              sunset={current.sunset}
+              moonrise={current.moonrise}
+              moonset={current.moonset}
+              isDark={isDark} 
+            />
+          )}
+        </BentoBox>
+
         {/* UV Index */}
         <BentoBox title="UV Index" icon={<UtilityIcon type="uv" />} isDark={isDark}>
           <div>
@@ -85,12 +99,6 @@ export const WeatherDetailsGrid: React.FC<WeatherDetailsGridProps> = ({ data, un
               <div className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-sm ${isDark ? 'border-black/50' : 'border-slate-300'}`} style={{ left: `${Math.min(((current.uvIndex ?? 0) / 11) * 100, 100)}%` }} />
             </div>
           </div>
-        </BentoBox>
-
-        {/* Sunrise */}
-        <BentoBox title="Sunrise" icon={<UtilityIcon type="sunrise" />} isDark={isDark}>
-          <div className="text-3xl font-medium">{current.sunrise}</div>
-          <div className={`text-xs ${textSecondary}`}>Sunset: {current.sunset}</div>
         </BentoBox>
 
         {/* Wind */}
