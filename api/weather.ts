@@ -14,6 +14,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(200).json(data);
   } catch (error: any) {
     console.error('Weather API Error:', error);
+    // Ensure we always return JSON, even if it's a 500
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({ 
       error: 'Failed to fetch weather data',
       details: error.message || String(error)

@@ -58,10 +58,17 @@ const fetchOpenMeteo = async (lat: number, lon: number): Promise<PartialWeatherD
     const text = await weatherRes.text();
     throw new Error(`Open-Meteo Failed: ${weatherRes.status} ${text}`);
   }
-  const data = await weatherRes.json();
+  
+  let data;
+  try {
+    data = await weatherRes.json();
+  } catch (e) {
+    const text = await weatherRes.text();
+    throw new Error(`Open-Meteo Invalid JSON: ${text.substring(0, 100)}`);
+  }
   
   if (!data || !data.current || !data.daily || !data.hourly) {
-    throw new Error('Open-Meteo Invalid Data');
+    throw new Error('Open-Meteo Invalid Data Structure');
   }
   
   let aqi = undefined;

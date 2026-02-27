@@ -40,9 +40,26 @@ const App: React.FC = () => {
     setError(null);
     try {
       const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-      const data = await res.json();
+      
       if (!res.ok) {
-        throw new Error(data.details || data.error || 'Failed to fetch weather data');
+        let errorMsg = 'Failed to fetch weather data';
+        try {
+          const errorData = await res.json();
+          errorMsg = errorData.details || errorData.error || errorMsg;
+        } catch (e) {
+          // If it's not JSON (like a Vercel 500 HTML page), just use the text or status
+          const text = await res.text();
+          errorMsg = text || `Server Error: ${res.status}`;
+        }
+        throw new Error(errorMsg);
+      }
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        const text = await res.text();
+        throw new Error(`Invalid JSON from server: ${text.substring(0, 100)}`);
       }
       setWeather(data);
 
