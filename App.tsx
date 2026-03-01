@@ -31,11 +31,36 @@ const App: React.FC = () => {
   
   const [settings, setSettings] = useState<UserSettings>(() => {
     const saved = localStorage.getItem('skycast-settings');
+    const defaultWidgets = [
+      { id: 'current', visible: true },
+      { id: 'hourly', visible: true },
+      { id: 'airQuality', visible: true },
+      { id: 'details', visible: true },
+      { id: 'map', visible: true },
+      { id: 'daily', visible: true },
+      { id: 'chart', visible: true }
+    ];
     const defaultSettings: UserSettings = {
       units: 'metric',
-      theme: 'dark'
+      theme: 'dark',
+      widgets: defaultWidgets
     };
-    if (saved) return { ...defaultSettings, ...JSON.parse(saved) };
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Ensure widgets exist in saved settings, or merge with defaults
+      if (!parsed.widgets || parsed.widgets.length === 0) {
+        parsed.widgets = defaultWidgets;
+      } else {
+        // Add any missing new widgets to the end
+        const existingIds = new Set(parsed.widgets.map((w: any) => w.id));
+        defaultWidgets.forEach(w => {
+          if (!existingIds.has(w.id)) {
+            parsed.widgets.push(w);
+          }
+        });
+      }
+      return { ...defaultSettings, ...parsed };
+    }
     return defaultSettings;
   });
 
@@ -252,38 +277,55 @@ const App: React.FC = () => {
           <>
             {weather.alerts && <AlertsBanner alerts={weather.alerts} theme={settings.theme} />}
 
-            <div className="flex flex-col gap-6">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                
-                {/* Left Column - Compact Sidebar */}
-                <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
-                  <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
-                  {weather.current.airQuality && (
-                    <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
-                  )}
-                </div>
-
-                {/* Right Column - Main Stats */}
-                <div className="lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
-                  <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
-                  <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
-                </div>
-              </div>
-
-              {/* Full Width 50/50 Split Section */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div className="w-full h-full min-h-[500px]">
-                  <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
-                </div>
-                <div className="w-full h-full min-h-[500px]">
-                  <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
-                </div>
-              </div>
-
-              {/* Bottom Chart */}
-              <div className="h-[350px]">
-                <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
-              </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start grid-flow-row-dense">
+              {settings.widgets?.filter(w => w.visible).map(widget => {
+                switch (widget.id) {
+                  case 'current':
+                    return (
+                      <div key="current" className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+                        <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'airQuality':
+                    return weather.current.airQuality ? (
+                      <div key="airQuality" className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+                        <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
+                      </div>
+                    ) : null;
+                  case 'hourly':
+                    return (
+                      <div key="hourly" className="col-span-12 lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
+                        <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'details':
+                    return (
+                      <div key="details" className="col-span-12 lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
+                        <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'map':
+                    return (
+                      <div key="map" className="col-span-12 xl:col-span-6 w-full h-full min-h-[500px]">
+                        <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'daily':
+                    return (
+                      <div key="daily" className="col-span-12 xl:col-span-6 w-full h-full min-h-[500px]">
+                        <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'chart':
+                    return (
+                      <div key="chart" className="col-span-12 h-[350px]">
+                        <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  default:
+                    return null;
+                }
+              })}
             </div>
           </>
         ) : (

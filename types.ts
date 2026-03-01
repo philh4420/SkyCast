@@ -96,9 +96,15 @@ export enum WeatherProvider {
   WEATHER_API = 'WeatherAPI.com'
 }
 
+export interface WidgetConfig {
+  id: string;
+  visible: boolean;
+}
+
 export interface UserSettings {
   units: 'metric' | 'imperial';
   theme: 'light' | 'dark';
+  widgets?: WidgetConfig[];
 }
 
 export interface GeoLocation {
