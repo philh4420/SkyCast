@@ -18,7 +18,7 @@ export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, 
   const isDark = theme === 'dark';
 
   return (
-    <Card className={`rounded-[2.5rem] backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
+    <Card className={`h-full flex flex-col rounded-[2.5rem] backdrop-blur-2xl border bg-white/5 border-white/10 shadow-lg ${!isDark && 'bg-white/50 border-slate-200/80'}`}>
       <CardHeader className="pb-2">
         <CardTitle className={`flex items-center text-sm font-medium uppercase tracking-wider ${isDark ? 'opacity-70' : 'text-slate-600'}`}>
           <Clock className="w-4 h-4 mr-2" />
@@ -26,8 +26,8 @@ export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, 
         </CardTitle>
       </CardHeader>
       
-      <CardContent>
-        <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide snap-x px-2">
+      <CardContent className="flex-1 flex flex-col justify-center px-2 sm:px-4">
+        <div className={`flex overflow-x-auto gap-2 sm:gap-4 pb-4 snap-x [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:rounded-full ${isDark ? '[&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-thumb]:bg-white/20 hover:[&::-webkit-scrollbar-thumb]:bg-white/30' : '[&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:bg-slate-300 hover:[&::-webkit-scrollbar-thumb]:bg-slate-400'}`}>
           {data.slice(0, 24).map((hour, idx) => {
             const date = new Date(hour.time);
             const timeLabel = idx === 0 ? 'Now' : date.toLocaleTimeString([], { hour: 'numeric' });
@@ -36,7 +36,7 @@ export const HourlyForecastStrip: React.FC<HourlyForecastStripProps> = ({ data, 
             return (
               <div 
                 key={idx} 
-                className={`flex-none flex flex-col items-center justify-between h-32 snap-start group ${isDark ? 'text-white' : 'text-slate-800'}`}
+                className={`flex-none flex flex-col items-center justify-between h-32 w-16 sm:w-20 snap-start group ${isDark ? 'text-white' : 'text-slate-800'}`}
               >
                 {/* Time */}
                 <span className={`text-sm font-medium ${isDark ? 'opacity-90' : 'text-slate-500'}`}>{timeLabel}</span>

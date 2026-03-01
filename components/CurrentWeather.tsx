@@ -27,7 +27,7 @@ export const CurrentWeather: React.FC<CurrentWeatherProps> = ({ data, unit, them
     : 'from-slate-800 to-slate-900';
 
   return (
-    <div className="flex flex-col items-center justify-center text-center py-8 md:py-12 relative z-10">
+    <div className="h-full flex flex-col items-center justify-center text-center py-8 md:py-12 relative z-10">
         <h2 className={`text-4xl md:text-5xl font-serif tracking-tight drop-shadow-lg mb-4 ${textColor}`}>
           {location.city}
         </h2>

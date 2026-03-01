@@ -89,7 +89,7 @@ export const PollutionRadar: React.FC<PollutionRadarProps> = ({ data, aqi, theme
   const strokeDashoffset = circumference - ((Math.min(aqi || 0, 300) / 300) * circumference);
 
   return (
-    <Card className={`rounded-[2.5rem] overflow-hidden backdrop-blur-3xl border transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10 shadow-2xl' : 'bg-white/60 border-slate-200 shadow-xl'}`}>
+    <Card className={`h-full flex flex-col rounded-[2.5rem] overflow-hidden backdrop-blur-3xl border transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10 shadow-2xl' : 'bg-white/60 border-slate-200 shadow-xl'}`}>
       <CardHeader className="pb-2">
         <CardTitle className={`text-[10px] font-black uppercase tracking-[0.2em] flex items-center ${isDark ? 'text-white/40' : 'text-slate-400'}`}>
           <PollutantIcon type="shield" className="w-3.5 h-3.5 mr-2" />
@@ -97,7 +97,7 @@ export const PollutionRadar: React.FC<PollutionRadarProps> = ({ data, aqi, theme
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex flex-col gap-6 pt-2">
+      <CardContent className="flex-1 flex flex-col gap-6 pt-2 justify-center">
         {/* AQI Circular Gauge */}
         <div className="flex items-center gap-6">
           <div className="relative w-24 h-24 flex items-center justify-center">

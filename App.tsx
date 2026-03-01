@@ -12,6 +12,12 @@ import { PollutionRadar } from './components/PollutionRadar';
 import { SettingsModal } from './components/SettingsModal';
 import { WeatherMap } from './components/WeatherMap';
 import { WeatherDetailsGrid } from './components/WeatherDetailsGrid';
+import { AstronomyWidget } from './components/AstronomyWidget';
+import { WindCompassWidget } from './components/WindCompassWidget';
+import { SmartSuggestionsWidget } from './components/SmartSuggestionsWidget';
+import { UVIndexWidget } from './components/UVIndexWidget';
+import { ComfortWidget } from './components/ComfortWidget';
+import { RainfallWidget, FeelsLikeWidget, HumidityWidget, VisibilityWidget, PressureWidget, SimpleUVWidget, SimpleWindWidget, CloudCoverWidget, SoilTempWidget, DewPointWidget } from './components/MiniWidgets';
 
 import { AlertsBanner } from './components/AlertsBanner';
 import { Search, MapPin, Settings, AlertTriangle, CloudLightning, CloudSun } from 'lucide-react';
@@ -35,7 +41,19 @@ const App: React.FC = () => {
       { id: 'current', visible: true },
       { id: 'hourly', visible: true },
       { id: 'airQuality', visible: true },
-      { id: 'details', visible: true },
+      { id: 'uvIndex', visible: true },
+      { id: 'comfort', visible: true },
+      { id: 'astronomy', visible: true },
+      { id: 'wind', visible: true },
+      { id: 'suggestions', visible: true },
+      { id: 'rainfall', visible: true },
+      { id: 'feelsLike', visible: true },
+      { id: 'humidity', visible: true },
+      { id: 'visibility', visible: true },
+      { id: 'pressure', visible: true },
+      { id: 'cloudCover', visible: true },
+      { id: 'soilTemp', visible: true },
+      { id: 'dewPoint', visible: true },
       { id: 'map', visible: true },
       { id: 'daily', visible: true },
       { id: 'chart', visible: true }
@@ -277,48 +295,132 @@ const App: React.FC = () => {
           <>
             {weather.alerts && <AlertsBanner alerts={weather.alerts} theme={settings.theme} />}
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start grid-flow-row-dense">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 items-stretch">
               {settings.widgets?.filter(w => w.visible).map(widget => {
                 switch (widget.id) {
                   case 'current':
                     return (
-                      <div key="current" className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+                      <div key="current" className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2">
                         <CurrentWeather data={weather} unit={settings.units} theme={settings.theme} />
                       </div>
                     );
                   case 'airQuality':
                     return weather.current.airQuality ? (
-                      <div key="airQuality" className="col-span-12 lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+                      <div key="airQuality" className="col-span-1">
                         <PollutionRadar data={weather.current.airQuality} aqi={weather.current.aqi} theme={settings.theme} />
                       </div>
                     ) : null;
-                  case 'hourly':
+                  case 'astronomy':
                     return (
-                      <div key="hourly" className="col-span-12 lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
-                        <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
+                      <div key="astronomy" className="col-span-1">
+                        <AstronomyWidget data={weather} theme={settings.theme} />
                       </div>
                     );
-                  case 'details':
+                  case 'wind':
                     return (
-                      <div key="details" className="col-span-12 lg:col-span-8 xl:col-span-9 flex flex-col gap-6">
-                        <WeatherDetailsGrid data={weather} unit={settings.units} theme={settings.theme} />
+                      <div key="wind" className="col-span-1">
+                        <WindCompassWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'suggestions':
+                    return (
+                      <div key="suggestions" className="col-span-1">
+                        <SmartSuggestionsWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'uvIndex':
+                    return (
+                      <div key="uvIndex" className="col-span-1">
+                        <UVIndexWidget data={weather} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'comfort':
+                    return (
+                      <div key="comfort" className="col-span-1">
+                        <ComfortWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'rainfall':
+                    return (
+                      <div key="rainfall" className="col-span-1">
+                        <RainfallWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'feelsLike':
+                    return (
+                      <div key="feelsLike" className="col-span-1">
+                        <FeelsLikeWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'humidity':
+                    return (
+                      <div key="humidity" className="col-span-1">
+                        <HumidityWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'visibility':
+                    return (
+                      <div key="visibility" className="col-span-1">
+                        <VisibilityWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'pressure':
+                    return (
+                      <div key="pressure" className="col-span-1">
+                        <PressureWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'simpleUv':
+                    return (
+                      <div key="simpleUv" className="col-span-1">
+                        <SimpleUVWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'simpleWind':
+                    return (
+                      <div key="simpleWind" className="col-span-1">
+                        <SimpleWindWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'cloudCover':
+                    return (
+                      <div key="cloudCover" className="col-span-1">
+                        <CloudCoverWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'soilTemp':
+                    return (
+                      <div key="soilTemp" className="col-span-1">
+                        <SoilTempWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'dewPoint':
+                    return (
+                      <div key="dewPoint" className="col-span-1">
+                        <DewPointWidget data={weather} unit={settings.units} theme={settings.theme} />
+                      </div>
+                    );
+                  case 'hourly':
+                    return (
+                      <div key="hourly" className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                        <HourlyForecastStrip data={weather.hourly} unit={settings.units} sunrise={weather.current.sunrise} sunset={weather.current.sunset} theme={settings.theme} />
                       </div>
                     );
                   case 'map':
                     return (
-                      <div key="map" className="col-span-12 xl:col-span-6 w-full h-full min-h-[500px]">
+                      <div key="map" className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2 h-[600px]">
                         <WeatherMap lat={coords.lat} lon={coords.lon} unit={settings.units} theme={settings.theme} />
                       </div>
                     );
                   case 'daily':
                     return (
-                      <div key="daily" className="col-span-12 xl:col-span-6 w-full h-full min-h-[500px]">
+                      <div key="daily" className="col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-2">
                         <DailyForecastList data={weather.forecast} unit={settings.units} theme={settings.theme} />
                       </div>
                     );
                   case 'chart':
                     return (
-                      <div key="chart" className="col-span-12 h-[350px]">
+                      <div key="chart" className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 h-[350px]">
                         <ForecastChart data={weather.hourly} unit={settings.units} theme={settings.theme} />
                       </div>
                     );
