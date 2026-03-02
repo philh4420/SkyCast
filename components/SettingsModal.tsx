@@ -129,8 +129,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
 
         // Subscribe
         const response = await fetch('/api/push/vapid-public-key');
-        const vapidPublicKey = await response.text();
-        const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+        const data = await response.json();
+        const convertedVapidKey = urlBase64ToUint8Array(data.publicKey);
 
         const subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,

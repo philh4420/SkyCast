@@ -8,12 +8,24 @@ import { getWeatherVideo } from './services/mediaService.js';
 
 dotenv.config();
 
-// Generate VAPID keys if they don't exist
-const vapidKeys = webpush.generateVAPIDKeys();
+// Load VAPID keys from environment variables
+let vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
+let vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+const vapidSubject = process.env.VAPID_SUBJECT || 'mailto:admin@example.com';
+
+if (!vapidPublicKey || !vapidPrivateKey) {
+  console.warn('⚠️ VAPID keys are missing from environment variables!');
+  console.warn('Generating temporary keys for this session. Push subscriptions will be lost on restart.');
+  console.warn('To fix this, run `npx web-push generate-vapid-keys` and add VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY to your environment variables.');
+  const keys = webpush.generateVAPIDKeys();
+  vapidPublicKey = keys.publicKey;
+  vapidPrivateKey = keys.privateKey;
+}
+
 webpush.setVapidDetails(
-  'mailto:test@example.com',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
+  vapidSubject,
+  vapidPublicKey,
+  vapidPrivateKey
 );
 
 // In-memory store for subscriptions
@@ -63,7 +75,7 @@ async function startServer() {
 
   // Web Push Routes
   app.get('/api/push/vapid-public-key', (req, res) => {
-    res.send(vapidKeys.publicKey);
+    res.json({ publicKey: vapidPublicKey });
   });
 
   app.post('/api/push/subscribe', (req, res) => {
