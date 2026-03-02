@@ -3,7 +3,8 @@ import { UserSettings, WidgetConfig } from '../types';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Moon, Sun, Thermometer, Ruler, LayoutDashboard, ArrowUp, ArrowDown, Eye, EyeOff, GripVertical, Settings2 } from 'lucide-react';
+import { Moon, Sun, Thermometer, Ruler, LayoutDashboard, ArrowUp, ArrowDown, Eye, EyeOff, GripVertical, Settings2, Bell, BellRing } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -66,7 +67,117 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
     setCurrentSettings({ ...currentSettings, widgets: newWidgets });
   };
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    if (!currentSettings.widgets) return;
+
+    const newWidgets = Array.from(currentSettings.widgets);
+    const [reorderedItem] = newWidgets.splice(result.source.index, 1);
+    newWidgets.splice(result.destination.index, 0, reorderedItem);
+
+    setCurrentSettings({ ...currentSettings, widgets: newWidgets });
+  };
+
   const isDark = currentSettings.theme === 'dark';
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) {
+          reg.pushManager.getSubscription().then(sub => {
+            setPushEnabled(!!sub);
+          });
+        }
+      });
+    }
+  }, []);
+
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/\-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  const togglePushNotifications = async (enabled: boolean) => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('Push notifications are not supported by your browser.');
+      return;
+    }
+
+    setIsSubscribing(true);
+
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
+      
+      if (enabled) {
+        // Request permission explicitly
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          throw new Error('permission_denied');
+        }
+
+        // Subscribe
+        const response = await fetch('/api/push/vapid-public-key');
+        const vapidPublicKey = await response.text();
+        const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedVapidKey
+        });
+
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          body: JSON.stringify(subscription),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        setPushEnabled(true);
+      } else {
+        // Unsubscribe
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+        }
+        setPushEnabled(false);
+      }
+    } catch (error: any) {
+      console.error('Error toggling push notifications:', error);
+      if (error.message === 'permission_denied' || error.name === 'NotAllowedError') {
+        alert('Notification permission was denied. Please enable it in your browser settings to receive alerts.');
+      } else {
+        alert('Failed to toggle push notifications. Please try again.');
+      }
+      setPushEnabled(false);
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
+  const sendTestNotification = async () => {
+    try {
+      await fetch('/api/push/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: 'This is a test notification from SkyCast!' })
+      });
+    } catch (error) {
+      console.error('Failed to send test notification', error);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -149,6 +260,37 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                    </div>
                 </div>
               </div>
+
+              {/* Notifications */}
+              <div className="flex flex-col gap-4 p-5 rounded-3xl border border-white/5 bg-muted/20 backdrop-blur-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-xl ${pushEnabled ? 'bg-blue-500/10 text-blue-500' : 'bg-muted text-muted-foreground'}`}>
+                      {pushEnabled ? <BellRing className="w-5 h-5" /> : <Bell className="w-5 h-5" />}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-semibold">Push Notifications</span>
+                      <span className="text-xs text-muted-foreground">Receive severe weather alerts</span>
+                    </div>
+                  </div>
+                  <Switch 
+                    checked={pushEnabled}
+                    disabled={isSubscribing}
+                    onCheckedChange={togglePushNotifications}
+                    className="data-[state=checked]:bg-blue-600"
+                  />
+                </div>
+                {pushEnabled && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={sendTestNotification}
+                    className="w-full mt-2 border-white/10 hover:bg-muted/50"
+                  >
+                    Send Test Notification
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Dashboard Layout Section */}
@@ -164,54 +306,73 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
                   </span>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-muted/20 rounded-[2rem] border border-white/5">
-                  {currentSettings.widgets.map((widget, index) => (
-                    <div 
-                      key={widget.id} 
-                      className={`flex items-center justify-between p-3 rounded-2xl transition-all duration-300 group ${
-                        widget.visible 
-                          ? 'bg-background shadow-sm border border-white/10 hover:border-blue-500/30' 
-                          : 'bg-background/40 border border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <GripVertical className="w-4 h-4 text-muted-foreground/40 cursor-grab active:cursor-grabbing hidden sm:block" />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className={`w-8 h-8 rounded-full shrink-0 transition-colors ${widget.visible ? 'bg-blue-500/10 hover:bg-blue-500/20' : 'bg-muted hover:bg-muted/80'}`}
-                          onClick={() => toggleWidget(index)}
-                        >
-                          {widget.visible ? <Eye className="w-4 h-4 text-blue-500" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
-                        </Button>
-                        <span className={`font-medium text-sm truncate ${widget.visible ? 'text-foreground' : 'text-muted-foreground line-through decoration-muted-foreground/50'}`}>
-                          {WIDGET_NAMES[widget.id] || widget.id}
-                        </span>
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="widgets-list">
+                    {(provided) => (
+                      <div 
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="grid grid-cols-1 gap-3 p-4 bg-muted/20 rounded-[2rem] border border-white/5"
+                      >
+                        {currentSettings.widgets!.map((widget, index) => (
+                          // @ts-ignore
+                          <Draggable key={widget.id} draggableId={widget.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div 
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`flex items-center justify-between p-3 rounded-2xl transition-all duration-300 group ${
+                                  widget.visible 
+                                    ? 'bg-background shadow-sm border border-white/10 hover:border-blue-500/30' 
+                                    : 'bg-background/40 border border-transparent opacity-60 hover:opacity-100'
+                                } ${snapshot.isDragging ? 'shadow-2xl scale-[1.02] z-50 ring-2 ring-blue-500/50' : ''}`}
+                              >
+                                <div className="flex items-center gap-3 overflow-hidden">
+                                  <div {...provided.dragHandleProps} className="p-1 -ml-1 cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-foreground transition-colors">
+                                    <GripVertical className="w-5 h-5" />
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className={`w-8 h-8 rounded-full shrink-0 transition-colors ${widget.visible ? 'bg-blue-500/10 hover:bg-blue-500/20' : 'bg-muted hover:bg-muted/80'}`}
+                                    onClick={() => toggleWidget(index)}
+                                  >
+                                    {widget.visible ? <Eye className="w-4 h-4 text-blue-500" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
+                                  </Button>
+                                  <span className={`font-medium text-sm truncate ${widget.visible ? 'text-foreground' : 'text-muted-foreground line-through decoration-muted-foreground/50'}`}>
+                                    {WIDGET_NAMES[widget.id] || widget.id}
+                                  </span>
+                                </div>
+                                
+                                <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="w-7 h-7 rounded-full hover:bg-muted"
+                                    disabled={index === 0}
+                                    onClick={() => moveWidget(index, 'up')}
+                                  >
+                                    <ArrowUp className="w-3.5 h-3.5" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="w-7 h-7 rounded-full hover:bg-muted"
+                                    disabled={index === currentSettings.widgets!.length - 1}
+                                    onClick={() => moveWidget(index, 'down')}
+                                  >
+                                    <ArrowDown className="w-3.5 h-3.5" />
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
                       </div>
-                      
-                      <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="w-7 h-7 rounded-full hover:bg-muted"
-                          disabled={index === 0}
-                          onClick={() => moveWidget(index, 'up')}
-                        >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="w-7 h-7 rounded-full hover:bg-muted"
-                          disabled={index === currentSettings.widgets!.length - 1}
-                          onClick={() => moveWidget(index, 'down')}
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
               </div>
             )}
           </div>

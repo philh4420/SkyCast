@@ -2,10 +2,22 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
+import webpush from 'web-push';
 import { getWeather } from './services/weatherService.js';
 import { getWeatherVideo } from './services/mediaService.js';
 
 dotenv.config();
+
+// Generate VAPID keys if they don't exist
+const vapidKeys = webpush.generateVAPIDKeys();
+webpush.setVapidDetails(
+  'mailto:test@example.com',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
+
+// In-memory store for subscriptions
+const subscriptions: any[] = [];
 
 async function startServer() {
   const app = express();
@@ -46,6 +58,41 @@ async function startServer() {
     } catch (error) {
       console.error('Media API Error:', error);
       res.status(500).json({ error: 'Failed to fetch media data' });
+    }
+  });
+
+  // Web Push Routes
+  app.get('/api/push/vapid-public-key', (req, res) => {
+    res.send(vapidKeys.publicKey);
+  });
+
+  app.post('/api/push/subscribe', (req, res) => {
+    const subscription = req.body;
+    subscriptions.push(subscription);
+    res.status(201).json({});
+  });
+
+  app.post('/api/push/send', async (req, res) => {
+    const payload = JSON.stringify({
+      title: 'SkyCast Weather Alert',
+      body: req.body.message || 'Severe weather warning in your area!',
+      icon: '/icon-192x192.png'
+    });
+
+    try {
+      const promises = subscriptions.map(sub => 
+        webpush.sendNotification(sub, payload).catch(err => {
+          console.error('Error sending notification, removing subscription', err);
+          // Remove invalid subscriptions
+          const index = subscriptions.indexOf(sub);
+          if (index > -1) subscriptions.splice(index, 1);
+        })
+      );
+      await Promise.all(promises);
+      res.status(200).json({ message: 'Notifications sent successfully.' });
+    } catch (error) {
+      console.error('Error sending push notifications:', error);
+      res.status(500).json({ error: 'Failed to send notifications' });
     }
   });
 
